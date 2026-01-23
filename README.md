@@ -1,8 +1,13 @@
-Here we have Setup for pretieer and eslint and imported the fonts with the help of local fonts in layout.tsx
+CHAPTER - 6 (File Based Routing)
 
-hiding node module and a ,next file to make the pannel look more simpler so we hove added in .vscode --> settings .json 
+CHAPTER - 7 (Architectue)
 
-we can hide any file from the vscode by "cmd + ," and type Enable add there will be like --> Add pattern
+1.) Birth of Server Components
+2.)Client vs Server Paradigm
+3.)Architecture Rendering Strategies
 
-we habe added Public folders Assets and add metadat i the layout.tsx
+CHAPTER - 8 (Light and Dark Theme)
 
+1.) use npm install next-themes
+2.)Create the context outside the app Router
+3.)wrap the children in Layout .tsx with the theme context Provider

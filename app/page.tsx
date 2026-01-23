@@ -1,8 +1,10 @@
+import React from 'react'
 
-const Home = () => {
+
+const page = () => {
   return (
-    <div className='bg-red-500 text-9xl text-white text-center  top-1/2 font-inter'>Home</div>
+    <div className='text-8xl'>Welcome to the Dark Theme</div>
   )
 }
 
-export default Home
+export default page
