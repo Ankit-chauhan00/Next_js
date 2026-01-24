@@ -35,7 +35,6 @@ export default function RootLayout({
         className={`${inter.variable} ${space.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Navbar/>
            {children}
         </ThemeProvider>
        

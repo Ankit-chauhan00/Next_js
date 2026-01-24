@@ -11,3 +11,4 @@ CHAPTER - 8 (Light and Dark Theme)
 1.) use npm install next-themes
 2.)Create the context outside the app Router
 3.)wrap the children in Layout .tsx with the theme context Provider
+4.)
