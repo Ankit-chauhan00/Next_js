@@ -35,7 +35,7 @@ const SocialForm = () => {
         <span>Log in with Github</span>
       </Button>
 
-      <Button className="background-dark400_light900 body-medium text-light text-dark200_light800 rounded-2 min-h-12 flex-1 px-3.5 px-4">
+      <Button onClick={()=> handelSignIn('google')} className="background-dark400_light900 body-medium text-light text-dark200_light800 rounded-2 min-h-12 flex-1 px-3.5 px-4">
         <Image src="/icons/google.svg" alt="Google Logo" width={20} height={20} className="mr-2.5 object-contain" />
         <span>login with Google</span>
       </Button>
