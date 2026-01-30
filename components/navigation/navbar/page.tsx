@@ -2,6 +2,7 @@ import React from 'react'
 import  Link  from 'next/link';
 import Image from "next/image";
 import Theme from './Themes';
+import MobileNavigation from './MobileNavigation';
 
 
 //Image is a next component
@@ -24,7 +25,10 @@ const Navbar = () => {
 
       <p>Global Search</p>
 
-      <div className="flex-between"><Theme/></div>
+      <div className="flex-between">
+        <Theme/>
+        <MobileNavigation/>
+        </div>
     </nav>
   )
 }
