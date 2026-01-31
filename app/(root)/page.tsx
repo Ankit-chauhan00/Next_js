@@ -6,7 +6,7 @@ const Home = async () => {
 
   return (
     <>
-
+    <h1>Welcome to the next js world</h1>
     </>
   )
 }
