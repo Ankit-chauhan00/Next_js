@@ -6,7 +6,7 @@ import { getDeviconClassname } from "@/lib/utils";
 interface Props {
   _id: string;
   name: string;
-  question: number;
+  question?: number;
   showCount?: boolean;
   compact?: boolean
 }
