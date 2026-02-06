@@ -39,7 +39,7 @@ const QuestionCard = ({question:{_id, title, tags, author, createdAt, upvotes, a
         imgUrl={author.image}
         alt={author.name}
         value={author.name}
-        title={` ° asked ${getTimeStamp(createdAt)}`}
+        title={`asked ${getTimeStamp(createdAt)}`}
         href={ROUTES.PROFILE(author._id)}
         textStyles="body-medium text-dark400_light700"
         isAuthor 

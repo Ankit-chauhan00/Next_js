@@ -34,7 +34,7 @@ const Metric = ({imgUrl, alt, value, title, href, textStyles , imgStyles, isAuth
     </>
   )
 
-  return href ?( <Link className='flex-center gap-1' href={href}>{metricContent}</Link>): <div className='flex-center gap-1'>{metricContent}</div>
+  return href ?( <Link className='flex justify-center items-center gap-1' href={href}>{metricContent}</Link>): <div className='flex-center gap-1'>{metricContent}</div>
 }
 
 export default Metric
