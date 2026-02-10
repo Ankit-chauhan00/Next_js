@@ -31,3 +31,15 @@ CHAPTER - 9(Authorization and authentication)
 
 (Creating Auth Form)
 1.) npx shadcn@latest add form (the components will be added in components-->ui)
+
+
+CHAPTER 14 (Developing Backend)
+
+<-- FRONTEND ----------------|---------------- BACKEND-->
+
+Client<---->Web Server<---------->Application Server<---->Database 
+
+![Project Architecture]("/assets/planingBackend.png")
+
+
+1:)Created a Databse over the mongoDb name Devflow and installed mongoose, my url.ts is in constant folder insted of lib
