@@ -43,3 +43,22 @@ Client<---->Web Server<---------->Application Server<---->Database
 
 
 1:)Created a Databse over the mongoDb name Devflow and installed mongoose, my url.ts is in constant folder insted of lib
+2:)Array of Refrences Vs creating multiple collection
+<!-- ! 
+👍 Pros
+
+Avoids large document size
+
+Easy to populate (populate())
+
+Normalized data
+
+Less duplication
+
+👎 Cons
+
+Requires extra query (populate)
+
+Slightly slower reads
+
+!  -->
