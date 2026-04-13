@@ -18,6 +18,6 @@ const AnswersSchema = new Schema<IAnswers>({
 {timestamps: true}
 );
 
-const Answers = models?.Account || model<IAnswers>("Account", AnswersSchema);
+const Answers = models?.Answer || model<IAnswers>("Answer", AnswersSchema);
 
 export default Answers;
