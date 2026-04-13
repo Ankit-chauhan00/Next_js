@@ -12,6 +12,6 @@ const CollectionSchema  = new Schema<ICollection>({
     timestamps : true
 });
 
-const Collection = models?.Account || model<ICollection>("Account",CollectionSchema)
+const Collection = models?.Collection || model<ICollection>("Collection",CollectionSchema)
 
 export default Collection;
