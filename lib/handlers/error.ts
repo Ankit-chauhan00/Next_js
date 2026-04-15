@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ZodError } from "zod";
+import z, { ZodError } from "zod";
 
 import { RequestError, ValidationError } from "../http-error";
 import logger from "../logger";
@@ -10,7 +10,7 @@ const formatResponse = (
   responseType: ResponseType,
   status: number,
   message: string,
-  errors?: Record<string, string[]> | undefined
+  errors?: unknown
 ) => {
   const responseContent = {
     success: false,
@@ -39,19 +39,11 @@ const handleError = (error: unknown, responseType: ResponseType = "server") => {
   }
 
   if (error instanceof ZodError) {
-  const fieldErrors: Record<string, string[]> = {};
+  
 
-  for (const issue of error.issues) {
-    const path = issue.path.join(".") || "root";
+  const treeError = z.treeifyError(error);
 
-    if (!fieldErrors[path]) {
-      fieldErrors[path] = [];
-    }
-
-    fieldErrors[path].push(issue.message);
-  }
-
-  const validationError = new ValidationError(fieldErrors);
+  const validationError = new ValidationError(treeError);
 
   logger.error({err: error},`Validation Error: ${validationError.message}`);
 

@@ -1,12 +1,18 @@
 
-export class RequestError extends Error {
+
+export type TreeError = {
+  errors: string[];
+  properties?: Record<string,TreeError>;
+}
+
+export class RequestError<T = unknown> extends Error {
   statusCode: number;
-  errors?: Record<string, string[]>;
+  errors?: T;
 
   constructor(
     statusCode: number,
     message: string,
-    errors?: Record<string, string[]>
+    errors?: T
   ) {
     super(message);
     this.statusCode = statusCode;
@@ -17,28 +23,41 @@ export class RequestError extends Error {
 
 
 
-export class ValidationError extends RequestError {
-  constructor(fieldErrors: Record<string, string[]>) {
-    const message = ValidationError.formatFieldErrors(fieldErrors);
+export class ValidationError extends RequestError<TreeError> {
+  constructor(fieldErrors: TreeError) {
+    const message = ValidationError.formatTreeErrors(fieldErrors);
+
     super(400, message, fieldErrors);
+
     this.name = "ValidationError";
-    this.errors = fieldErrors;
   }
 
-  static formatFieldErrors(errors: Record<string, string[]>): string {
-    const formattedMessages = Object.entries(errors).map(
-      ([field, messages]) => {
-        const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
+  static formatTreeErrors(error: TreeError): string {
+    const messages: string[] = [];
 
-        if (messages[0] === "Required") {
-          return `${fieldName} is required`;
-        } else {
-          return messages.join(" and ");
+    function traverse(err: TreeError, path: string[] = []) {
+      if (err.errors?.length) {
+        const fieldName = path.join('.') || "Field";
+
+        err.errors.forEach((msg: string) => {
+          if (msg === "Required") {
+            messages.push(`${fieldName} is required`);
+          } else {
+            messages.push(`${fieldName}: ${msg}`);
+          }
+        });
+      }
+
+      if (err.properties) {
+        for (const key in err.properties) {
+          traverse(err.properties[key], [...path, key]);
         }
       }
-    );
+    }
 
-    return formattedMessages.join(", ");
+    traverse(error);
+
+    return messages.join(", ");
   }
 }
 

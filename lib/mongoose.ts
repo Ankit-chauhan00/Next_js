@@ -38,7 +38,7 @@ const dbConnect = async () :Promise<Mongoose> =>{
       return result;
     }).catch((error)=>{
       logger.info("Error while connecting to mongoDb", error);
-      return error;
+      throw error;
     })
   }
 
