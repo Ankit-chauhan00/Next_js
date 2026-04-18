@@ -1,4 +1,5 @@
-import User from "@/database/user.model";
+import Account from "@/database/account.model";
+
 import handleError from "@/lib/handlers/error";
 import { NotFoundError } from "@/lib/http-error";
 import dbConnect from "@/lib/mongoose";
@@ -17,7 +18,7 @@ export async function GET(request : Request, {params } : { params: Promise<{id: 
     try {
         await dbConnect();
 
-        const user = await User.findById(id);
+        const user = await Account.findById(id);
         if(!user) throw new NotFoundError("User");
 
         return NextResponse.json({success: true, data: user}, {status: 200});
@@ -37,7 +38,7 @@ export async function DELETE(request : Request, {params} : {params: Promise<{id:
     try {
         await dbConnect();
 
-        const user = await User.findByIdAndDelete(id);
+        const user = await Account.findByIdAndDelete(id);
 
         if(!user) throw new NotFoundError("User");
 
@@ -60,7 +61,7 @@ export async function PUT(request : Request, {params}: {params: Promise<{id: str
         const body = await request.json();
         const validatedData = UserSchema.partial().parse(body);
 
-        const updatedUser = await User.findByIdAndUpdate(id, validatedData,{ new : true});
+        const updatedUser = await Account.findByIdAndUpdate(id, validatedData,{ new : true});
 
         if(!updatedUser) throw new NotFoundError("User");
 
