@@ -1,3 +1,4 @@
+import { auth } from "@/auth"
 import QuestionCard from "@/components/cards/QuestionCard"
 import HomeFilter from "@/components/filters/HomeFilter"
 import LocalSearch from "@/components/search/LocalSearch"
@@ -62,9 +63,10 @@ interface SearchParams {
 
 const Home = async ({ searchParams }: SearchParams) => {
 
- const users = await test();
+const session  = await auth();
+
+console.log("Session", session);
   
-console.log(users);
 
   const { query = "", filter = "" } = await searchParams;
 
