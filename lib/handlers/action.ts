@@ -36,6 +36,11 @@ async function action<T>({
         }
     }
 
+    // ❗ Ensure params exist (important for TS safety)
+  if (!params) {
+    return new Error("Params are required");
+  }
+
     // ✅ Step 2: Handle authorization (if required)
     let session: Session | null = null;
 
@@ -55,3 +60,5 @@ async function action<T>({
     // ✅ Step 4: Return validated params + session (if any)
     return { params, session };
 }
+
+export default action;

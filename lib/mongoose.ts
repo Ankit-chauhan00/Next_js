@@ -1,3 +1,4 @@
+
 import mongoose, {Mongoose} from 'mongoose'
 import logger from './logger';
 
@@ -34,10 +35,10 @@ const dbConnect = async () :Promise<Mongoose> =>{
       dbName: 'devflow'
     })
     .then((result)=>{
-      logger.info("connected to mongoDB");
+      logger.error("connected to mongoDB");
       return result;
     }).catch((error)=>{
-      logger.info("Error while connecting to mongoDb", error);
+      logger.error("Error while connecting to mongoDb", error);
       throw error;
     })
   }
