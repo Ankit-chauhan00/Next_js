@@ -9,10 +9,9 @@ import React from "react";
 
 
 
-const NavLinks = ({isMobileNav = false}: { isMobileNav ? : boolean }) => {
+const NavLinks = ({isMobileNav = false, userId}: { isMobileNav ? : boolean, userId ?: string }) => {
 
   const pathname = usePathname();
-  const userId = 1;
   return (
     <>{sidebarLinks.map((items)=>{
       const isActive = (pathname.includes(items.route) &&  items.route.length > 1) || pathname ===  items.route;

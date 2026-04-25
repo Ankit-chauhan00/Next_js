@@ -9,6 +9,7 @@ import User from "@/database/user.model";
 import bcrypt from "bcryptjs";
 import Account from "@/database/account.model";
 import { NotFoundError } from "../http-error";
+import { signIn } from "@/auth";
 
 export async function signUpWithCredentials(params: AuthCredentials): Promise<ActionResponse> {
   const validationResult = await action({ params, schema: SignUpSchema });
@@ -21,8 +22,6 @@ export async function signUpWithCredentials(params: AuthCredentials): Promise<Ac
 
   const session = await mongoose.startSession();
   session.startTransaction();
-
-
 
   try {
     const existingUser = await User.findOne({ email }).session(session);
@@ -56,7 +55,6 @@ export async function signUpWithCredentials(params: AuthCredentials): Promise<Ac
     );
 
     await session.commitTransaction();
-
     return { success: true };
   } catch (error) {
     if (session.inTransaction()) {
@@ -69,36 +67,31 @@ export async function signUpWithCredentials(params: AuthCredentials): Promise<Ac
   }
 }
 
-export async function signIpWithCredentials(
-  params:Pick<AuthCredentials,'email' | 'password'>): Promise<ActionResponse> {
+export async function signInWithCredentials(
+  params: Pick<AuthCredentials, "email" | "password">
+): Promise<ActionResponse> {
   const validationResult = await action({ params, schema: SignInSchema });
 
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const {  email, password } = validationResult.params;
+  const { email, password } = validationResult.params;
 
   try {
-    const existingUser = await User.findOne({ email });
-
-    if (!existingUser) throw new NotFoundError('USer Not Found');
-
-    const existingAccount = await Account.findOne({provider: "credentials",providerAccountId: email});
-
-    if(!existingAccount) throw new NotFoundError("Account");
-
-    const passwordMatch = await bcrypt.compare(
+    // Call NextAuth's signIn to create a session
+    const result = await signIn("credentials", {
+      email,
       password,
-      existingAccount.password
-    )
+      redirect: false,
+    });
 
-    if(!passwordMatch) throw new Error("Password does not match");
+    if (!result?.ok) {
+      throw new Error(result?.error || "Authentication failed");
+    }
 
-    return {success: true};
-
+    return { success: true };
   } catch (error) {
-
     return handleError(error) as ErrorResponse;
-  } 
+  }
 }

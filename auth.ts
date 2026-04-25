@@ -1,94 +1,121 @@
-import NextAuth from "next-auth"
-import GitHub from "next-auth/providers/github"
-import Google from "next-auth/providers/google"
+import NextAuth from "next-auth";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
 import { ActionResponse } from "./types/global";
 import { api } from "./lib/api";
-import { IAccountDoc } from "./database/account.model";
+import Account, { IAccountDoc } from "./database/account.model";
 import { SignInSchema } from "./lib/validation";
-import { IUserDoc } from "./database/user.model";
+import User from "./database/user.model";
 import bcrypt from "bcryptjs";
-import Credentials from "next-auth/providers/credentials"
- 
+import Credentials from "next-auth/providers/credentials";
+import dbConnect from "./lib/mongoose";
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [GitHub, Google, Credentials({
-    async authorize(credentials){
-      const validatedFields = SignInSchema.safeParse(credentials);
+  providers: [
+    GitHub,
+    Google,
+    Credentials({
+      async authorize(credentials) {
+        const validatedFields = SignInSchema.safeParse(credentials);
 
-      if(validatedFields.success){
-        const {email, password} = validatedFields.data;
-
-        const {data: existingAccount} = (await api.accounts.getByProvider(email)) as ActionResponse<IAccountDoc>
-
-        if(!existingAccount) return null;
-
-        const {data: existingUser} = (await api.users.getById(existingAccount.userId.toString())) as ActionResponse<IUserDoc>;
-
-        if(!existingUser) return null;
-
-        const isValidPassword = await bcrypt.compare(password, existingAccount.password!);
-
-        if(isValidPassword){
-          return {
-            id: existingUser._id.toString(),
-            name: existingUser.name,
-            email: existingUser.email,
-            image: existingUser.image,
-          }
+        if (!validatedFields.success) {
+          console.log("❌ validation failed");
+          return null;
         }
-      }
 
-      return null;
-    }
-  })],
+        const email = validatedFields.data.email.toLowerCase().trim();
+        const password = validatedFields.data.password;
+
+        await dbConnect();
+
+        const account = await Account.findOne({
+          provider: "credentials",
+          providerAccountId: email,
+        });
+
+        console.log("ACCOUNT:", account);
+
+        if (!account) return null;
+
+        const user = await User.findById(account.userId);
+        console.log("USER:", user);
+
+        if (!user) return null;
+
+        const isValidPassword = await bcrypt.compare(password, account.password!);
+        console.log("PASSWORD MATCH:", isValidPassword);
+
+        if (!isValidPassword) return null;
+
+        return {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          image: user.image,
+
+          // 👇 attach account info
+          accountId: account._id.toString(),
+          provider: account.provider,
+        };
+
+        return null;
+      },
+    }),
+  ],
+
   callbacks: {
-
-    async session({session, token}){
-      session.user.id = token.sub as string;
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+      }
       return session;
     },
 
-      async jwt({ token, account }) {
-      if (account) {
-        const { data: existingAccount, success } =
-          (await api.accounts.getByProvider(
-            account.type === "credentials"
-              ? token.email!
-              : account.providerAccountId
-          )) as ActionResponse<IAccountDoc>;
+    async jwt({ token, user, account }) {
+      // first time login (credential or oAuth)
 
-        if (!success || !existingAccount) return token;
+      if (user) {
+        token.id = user.id; // stores directly
+      }
 
-        const userId = existingAccount.userId;
+      if (account && account.type !== "credentials") {
+        const { data: existingAccount, success } = (await api.accounts.getByProvider(
+          account.providerAccountId
+        )) as ActionResponse<IAccountDoc>;
 
-        if (userId) token.sub = userId.toString();
+        if (success && existingAccount?.userId) {
+          token.id = existingAccount.userId.toString();
+        }
+      }
+
+      // ✅ VERY IMPORTANT: keep existing id
+      if (!token.id && token.sub) {
+        token.id = token.sub;
       }
 
       return token;
     },
 
-    async signIn({user, profile, account}){
-      if(account?.type === 'credentials') return true;
-      if(!account || !user) return false;
+    async signIn({ user, profile, account }) {
+      if (account?.type === "credentials") return true;
+      if (!account || !user) return false;
 
       const userInfo = {
         name: user.name!,
         email: user.email!,
         image: user.image!,
-        username: account.provider === 'github'
-        ?(profile?.login as string)
-        : (user.name?.toLowerCase() as string ),
-      }
+        username: account.provider === "github" ? (profile?.login as string) : (user.name?.toLowerCase() as string),
+      };
 
-      const {success}= await api.auth.oAuthSignIn({
+      const { success } = (await api.auth.oAuthSignIn({
         user: userInfo,
-        provider: account.provider as 'github' | 'google',
+        provider: account.provider as "github" | "google",
         providerAccountId: account.providerAccountId as string,
-      }) as ActionResponse;
+      })) as ActionResponse;
 
-      if(!success) return false;
-
+      if (!success) return false;
 
       return true;
-    }
-  } 
-})
+    },
+  },
+});
