@@ -8,10 +8,12 @@ import mongoose from "mongoose";
 import User from "@/database/user.model";
 import bcrypt from "bcryptjs";
 import Account from "@/database/account.model";
-import { NotFoundError } from "../http-error";
 import { signIn } from "@/auth";
+import dbConnect from "../mongoose";
 
-export async function signUpWithCredentials(params: AuthCredentials): Promise<ActionResponse> {
+export async function signUpWithCredentials(
+  params: AuthCredentials
+): Promise<ActionResponse> {
   const validationResult = await action({ params, schema: SignUpSchema });
 
   if (validationResult instanceof Error) {
@@ -24,21 +26,20 @@ export async function signUpWithCredentials(params: AuthCredentials): Promise<Ac
   session.startTransaction();
 
   try {
-    const existingUser = await User.findOne({ email }).session(session);
+    await dbConnect();
 
+    const existingUser = await User.findOne({ email }).session(session);
     if (existingUser) {
-      throw new Error("User Alredy Exists");
+      throw new Error("User Already Exists");
     }
 
     const existingUsername = await User.findOne({ username }).session(session);
-
     if (existingUsername) {
-      throw new Error("Username alredy exists");
+      throw new Error("Username already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // as mongoose accepts array of object or multiple object but if we pass without an single array the option is considered as obejct so error occured
     const [newUser] = await User.create([{ username, name, email }], { session });
 
     await Account.create(
@@ -55,16 +56,24 @@ export async function signUpWithCredentials(params: AuthCredentials): Promise<Ac
     );
 
     await session.commitTransaction();
-    return { success: true };
+    await signIn("credentials", {
+    email,
+    password,
+    redirect: false,
+  });
+
+    return {success: true};
+    
   } catch (error) {
     if (session.inTransaction()) {
       await session.abortTransaction();
     }
-
-    throw handleError(error) as ErrorResponse;
+    return  handleError(error) as ErrorResponse;
   } finally {
     await session.endSession();
   }
+
+
 }
 
 export async function signInWithCredentials(
@@ -79,16 +88,11 @@ export async function signInWithCredentials(
   const { email, password } = validationResult.params;
 
   try {
-    // Call NextAuth's signIn to create a session
-    const result = await signIn("credentials", {
+    await signIn("credentials", {
       email,
       password,
       redirect: false,
     });
-
-    if (!result?.ok) {
-      throw new Error(result?.error || "Authentication failed");
-    }
 
     return { success: true };
   } catch (error) {

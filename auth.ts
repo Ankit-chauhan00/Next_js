@@ -16,6 +16,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google,
     Credentials({
       async authorize(credentials) {
+        await dbConnect();
         const validatedFields = SignInSchema.safeParse(credentials);
 
         if (!validatedFields.success) {
