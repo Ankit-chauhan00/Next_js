@@ -1,6 +1,6 @@
 "use server";
 
-import { ActionResponse, ErrorResponse } from "@/types/global";
+import { ActionResponse, ErrorResponse, Questions} from "@/types/global";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { AskQuestionSchema } from "../validation";
@@ -10,7 +10,7 @@ import Tag from "@/database/tag.model";
 import TagQuestion from "@/database/tagQuestion.model";
 import dbConnect from "../mongoose";
 
-export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse> {
+export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<Questions>> {
   const validationResult = await action({ params, schema: AskQuestionSchema, authorize: true });
 
   if (validationResult instanceof Error) {
