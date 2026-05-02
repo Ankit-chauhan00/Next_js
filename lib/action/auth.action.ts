@@ -8,6 +8,7 @@ import Account from "@/database/account.model";
 import User from "@/database/user.model";
 
 import action from "../handlers/action";
+import dbConnect from "../mongoose";
 import handleError from "../handlers/error";
 import { ActionResponse, ErrorResponse } from "@/types/global";
 import { SignInSchema, SignUpSchema } from "../validation";
@@ -28,6 +29,8 @@ export async function signUpWithCredentials(
   session.startTransaction();
 
   try {
+    await dbConnect();
+
     const existingUser = await User.findOne({ email }).session(session);
 
     if (existingUser) {

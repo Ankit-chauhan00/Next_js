@@ -1,12 +1,14 @@
 //  why do we need a Account Question 
 //  As in modern website we can signin with the socila platforms like google,gthub etc but if a user wants to sign in in the traditional way of email and password
 
-import { model, models, Schema, } from "mongoose";
+import { model, models, Schema, Document } from "mongoose";
 
 export interface ITag {
     name: string;
     questions: number;
 }
+
+export interface ITagDoc extends ITag, Document {}
 
 const TagSchema  = new Schema<ITag>({
 name: {type: String, required: true, unique: true},

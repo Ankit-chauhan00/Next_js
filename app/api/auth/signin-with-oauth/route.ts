@@ -4,14 +4,17 @@ import dbConnect from "@/lib/mongoose";
 import { signInWithOAuthSchema } from "@/lib/validation";
 import { APIErrorResponse } from "@/types/global";
 import  mongoose  from "mongoose";
-import z, { success } from "zod";
+import z from "zod";
 import  slugify  from "slugify";
 import User from "@/database/user.model";
 import Account from "@/database/account.model";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request){
-    const {provider, providerAccountId, user} =  await request.json();
+    const body = await request.json();
+    console.log("OAuth request body:", JSON.stringify(body, null, 2));
+    
+    const {provider, providerAccountId, user} = body;
 
     await dbConnect();
 
@@ -32,6 +35,7 @@ export async function POST(request: Request){
         }
 
         const {name, username, email, image} = user;
+        console.log("Destructured values:", {name, username, email, image});
 
         const slugifiedUsername = slugify(username, {
             lower: true,
@@ -60,9 +64,12 @@ export async function POST(request: Request){
         const existingAccount = await Account.findOne({userId: existingUser._id, provider, providerAccountId}).session(session);
 
         if(!existingAccount){
-            await Account.create([
-                {userId: existingUser._id, name, image, provider, providerAccountId}
-            ],{session})
+            await Account.create(
+                [{userId: existingUser._id, name, image, provider, providerAccountId}],
+                {session}
+            );
+        } else {
+            console.log("Account already exists");
         }
 
         await session.commitTransaction();

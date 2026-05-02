@@ -67,6 +67,14 @@ export const AskQuestionSchema = z.object({
     .max(3, { message: 'Maximum of 3 tags.' }),
 });
 
+export const EditQuestionSchema = AskQuestionSchema.extend({
+  questionId: z.string().min(1,{message: "Question ID is Required"})
+})
+
+export const getQuestionSchema = z.object({
+  questionId: z.string().min(1, {message: "Question Id is Required"})
+})
+
 export const UserSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -118,7 +126,7 @@ export const signInWithOAuthSchema = z.object({
     email: z
     .email({message: "Please provide a valid email address"}),
 
-    image: z.url("Invalid image url").optional(),
+    image: z.string().optional(),
 
   }),
 })

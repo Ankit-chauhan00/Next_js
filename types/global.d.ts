@@ -15,6 +15,7 @@ interface Author {
 interface Questions {
   _id: string;
   title: string;
+  content: string;
   tags: Tag[];
   author: Author;
   createdAt: Date;
@@ -23,6 +24,8 @@ interface Questions {
   views: number;
   createdAt: Date;
 }
+
+
 
 interface SignInWithOauthParam{
   provider: 'github' | 'google',

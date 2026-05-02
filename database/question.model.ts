@@ -8,7 +8,7 @@ export interface IQuestion {
     upvotes: number;
     downvotes: number;
     answers: number;
-    authors: Types.ObjectId;
+    author: Types.ObjectId;
 }
 
 const QuestionSchema = new Schema<IQuestion>({
@@ -19,7 +19,7 @@ const QuestionSchema = new Schema<IQuestion>({
     upvotes: {type: Number, default: 0},
     downvotes: {type: Number, default: 0},
     answers: {type: Number,  default: 0},
-    authors: {type: Schema.Types.ObjectId, ref: "User"},
+    author: {type: Schema.Types.ObjectId, ref: "User"},
 },
 {timestamps: true}
 );
