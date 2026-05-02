@@ -1,64 +1,55 @@
 "use server";
 
-import z, { ZodError } from "zod";
-import { ValidationError } from "../http-error";
 import { Session } from "next-auth";
-import { auth } from "@/auth";
-import dbConnect from "../mongoose";
+import z, { ZodError, ZodSchema } from "zod";
 
-// Generic type T allows flexibility for different input shapes
+import { auth } from "@/auth";
+
+import dbConnect from "../mongoose";
+import { UnauthorizedError, ValidationError } from "../http-error";
+
 type ActionOptions<T> = {
-    params?: T;                // Input data (e.g. form data, API payload)
-    schema?: z.ZodType<T>;     // Optional Zod schema for validation
-    authorize?: boolean;       // Whether this action requires authentication
-}
+  params?: T;
+  schema?: ZodSchema<T>;
+  authorize?: boolean;
+};
+
+// 1. Checking whether the schema and params are provided and validated.
+// 2. Checking whether the user is authorized.
+// 3. Connecting to the database.
+// 4. Returning the params and session.
 
 async function action<T>({
-    params, schema, authorize = false
-}: ActionOptions<T>){
+  params,
+  schema,
+  authorize = false,
+}: ActionOptions<T>) {
+  if (schema && params) {
+    try {
+      schema.parse(params);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const treeError = z.treeifyError(error);
+        return new ValidationError(treeError);
+      }
 
-    // ✅ Step 1: Validate input if schema is provided
-    if (schema && params) {
-        try {
-            // Parse and validate params against schema
-            schema.parse(params);
-
-        } catch (error) {
-            // Handle validation errors from Zod
-            if (error instanceof ZodError) {
-
-                // Convert Zod error into structured format (Zod v4+)
-                const formattedError = z.treeifyError(error);
-
-                // Return custom validation error (instead of throwing)
-                return new ValidationError(formattedError);
-            }
-        }
+      return new Error("Schema validation failed");
     }
-
-    // ❗ Ensure params exist (important for TS safety)
-  if (!params) {
-    return new Error("Params are required");
   }
 
-    // ✅ Step 2: Handle authorization (if required)
-    let session: Session | null = null;
+  let session: Session | null = null;
 
-    if (authorize) {
-        // Get current user session
-        session = await auth();
+  if (authorize) {
+    session = await auth();
 
-        // If no session, user is not authenticated
-        if (!session) {
-            return new Error("Unauthorized");
-        }
+    if (!session) {
+      return new UnauthorizedError();
     }
+  }
 
-    // ✅ Step 3: Connect to database before performing any DB operation
-    await dbConnect();
+  await dbConnect();
 
-    // ✅ Step 4: Return validated params + session (if any)
-    return { params, session };
+  return { params, session };
 }
 
 export default action;
