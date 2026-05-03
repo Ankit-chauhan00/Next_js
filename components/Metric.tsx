@@ -19,8 +19,8 @@ const Metric = ({imgUrl, alt, value, title, href, textStyles , imgStyles, isAuth
     <>
     <Image 
     src={imgUrl} 
-    width={16}
-    height={16}
+    width={26}
+    height={26}
     alt='alt'
     className={`rounded-full object-contain ${imgStyles}`}
     />

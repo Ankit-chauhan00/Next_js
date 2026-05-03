@@ -79,37 +79,42 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
       });
     }
   };
-
-  const handleCreateQuestion = async (data: z.infer<typeof AskQuestionSchema>) => {
-    const result = await createQuestion(data);
-
+  const handleCreateQuestion = async (
+    data: z.infer<typeof AskQuestionSchema>
+  ) => {
     startTransition(async () => {
       if (isEdit && question) {
-        const result = await editQuestion({ questionId: question?._id, ...data });
+        const result = await editQuestion({
+          questionId: question?._id,
+          ...data,
+        });
+
         if (result.success) {
           toast.success("Question updated Successfully");
           if (result.data) router.push(ROUTES.QUESTION(result.data._id));
-        }else {
-        toast.error(result.error?.message || "Something went wrong", {
+        } else {
+          toast.error(result.error?.message || "Something went wrong", {
           description: "Please try again later",
         });
+        }
 
         return;
       }
-        
-      }
+
+      const result = await createQuestion(data);
 
       if (result.success) {
-        toast.success("Question Created Successfully");
+         toast.success("Question Created Successfully");
+
         if (result.data) router.push(ROUTES.QUESTION(result.data._id));
-      }
-      else {
+      } else {
         toast.error(result.error?.message || "Something went wrong", {
           description: "Please try again later",
         });
       }
     });
   };
+
 
   return (
     <Form {...form}>

@@ -3,9 +3,10 @@ import { getTimeStamp } from '@/lib/utils';
 import Link from 'next/link';
 import TagCard from './TagCard';
 import Metric from '../Metric';
+import { Questions, Tag } from '@/types/global';
 
 interface Props{
-  question: Question;
+  question: Questions;
 }
 
 const QuestionCard = ({question:{_id, title, tags, author, createdAt, upvotes, answers, views}}: Props) => {
@@ -34,7 +35,7 @@ const QuestionCard = ({question:{_id, title, tags, author, createdAt, upvotes, a
         ))}
       </div>
 
-      <div className="flex-between mt-6 w-full flex-wrap gap-3">
+      <div className="flex-between mt-6 w-full flex-wrap gap-10">
         <Metric 
         imgUrl={author.image}
         alt={author.name}
@@ -45,7 +46,7 @@ const QuestionCard = ({question:{_id, title, tags, author, createdAt, upvotes, a
         isAuthor 
          />
 
-         <div className=" flex items-center gap-3 max-sm:flex-wrap max-sm:justify-start">
+         <div className="flex items-center gap-3 max-sm:flex-wrap max-sm:justify-start">
           <Metric
           imgUrl= "/icons/like.svg"
           alt="like"
