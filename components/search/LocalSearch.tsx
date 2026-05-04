@@ -12,10 +12,11 @@ interface props{
   route: string,
   imgSrc: string,
   placeholder: string,
-  otherClasses ?: string, 
+  otherClasses ?: string,
+  iconPosition?: "left" | "right"; 
 }
 
-const LocalSearch = ({route,imgSrc,placeholder,otherClasses}: props) => {
+const LocalSearch = ({route,imgSrc,placeholder,otherClasses, iconPosition = 'left'}: props) => {
 // installing library query-string as the params are difficul to understand and to remove the 
   const searchParams = useSearchParams();
   const pathname = usePathname()
@@ -52,13 +53,14 @@ const LocalSearch = ({route,imgSrc,placeholder,otherClasses}: props) => {
 
   return (
     <div className={`background-light800_darkgradient flex min-h-14 grow items-center gap-4 rounded-[10px] px-4 ${otherClasses}`}>
+     {iconPosition === 'left' && 
       <Image 
       src={imgSrc}
       height={24}
       width={24}
       alt='Searc'
       className='cursor-pointer'
-      />
+      />}
       <Input
       type="text"
       placeholder={placeholder}
@@ -66,6 +68,14 @@ const LocalSearch = ({route,imgSrc,placeholder,otherClasses}: props) => {
       onChange={(e)=>{setsearchQuery(e.target.value)}}
       className='paragraph-regular no-focus placeholder   text-dark400_light700 border-none shadow-none outline-none'
       />
+      {iconPosition === 'right' && 
+      <Image 
+      src={imgSrc}
+      height={24}
+      width={24}
+      alt='Searc'
+      className='cursor-pointer'
+      />}
     </div>
   )
 }
