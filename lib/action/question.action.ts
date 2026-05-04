@@ -36,7 +36,7 @@ export async function createQuestion(params: CreateQuestionParams): Promise<Acti
     for (const tag of tags) {
       const existingTags = await Tag.findOneAndUpdate(
         { name: { $regex: new RegExp(`^${tag}$`, "i") } },
-        { $setOnInsert: { name: tag }, $inc: { question: 1 } },
+        { $setOnInsert: { name: tag }, $inc: { questions: 1 } },
         { upsert: true, new: true, session }
       );
 
