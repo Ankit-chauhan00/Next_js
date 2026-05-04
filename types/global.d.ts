@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-interface Tag {
+interface Tagg {
   _id: string;
   name: string;
 }
