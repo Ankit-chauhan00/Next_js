@@ -9,6 +9,7 @@ import Question, { IQuestionDoc } from "@/database/question.model";
 import Tag, { ITagDoc } from "@/database/tag.model";
 import TagQuestion from "@/database/tagQuestion.model";
 import dbConnect from "../mongoose";
+import { CreateQuestionParams, EditQuestionParams, GetQuestionParams } from "@/types/action";
 
 export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<Questions>> {
   const validationResult = await action({ params, schema: AskQuestionSchema, authorize: true });
@@ -187,7 +188,9 @@ export async function getQuestion( params: GetQuestionParams): Promise<ActionRes
   const { questionId} = validationResult.params!;
 
   try {
-    const question = await Question.findById(questionId).populate("tags");
+    const question = await Question.findById(questionId)
+    .populate("tags")
+    .populate("author", "_id name image");
 
     if(!question) throw new Error("Question not found");
 
