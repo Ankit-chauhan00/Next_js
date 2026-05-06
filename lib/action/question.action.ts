@@ -3,13 +3,13 @@
 import { ActionResponse, ErrorResponse, PaginatedSearchParams, Questions} from "@/types/global";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
-import { AskQuestionSchema, EditQuestionSchema, getQuestionSchema, PaginatedSearchParamsSchema } from "../validation";
+import { AskQuestionSchema, EditQuestionSchema, getQuestionSchema, incrementViewsSchema, PaginatedSearchParamsSchema } from "../validation";
 import mongoose, { QueryFilter } from "mongoose";
 import Question, { IQuestionDoc } from "@/database/question.model";
 import Tag, { ITagDoc } from "@/database/tag.model";
 import TagQuestion from "@/database/tagQuestion.model";
 import dbConnect from "../mongoose";
-import { CreateQuestionParams, EditQuestionParams, GetQuestionParams } from "@/types/action";
+import { CreateQuestionParams, EditQuestionParams, GetQuestionParams, IncrementViewsParams } from "@/types/action";
 
 export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<Questions>> {
   const validationResult = await action({ params, schema: AskQuestionSchema, authorize: true });
@@ -64,7 +64,6 @@ export async function createQuestion(params: CreateQuestionParams): Promise<Acti
     await session.endSession();
   }
 }
-
 
 export async function editQuestion(
   params: EditQuestionParams
@@ -173,8 +172,6 @@ export async function editQuestion(
   }
 }
 
-
-
 export async function getQuestion( params: GetQuestionParams): Promise<ActionResponse<Questions>> {
   const validationResult = await action({
     params,
@@ -279,5 +276,33 @@ export async function getQuestions(params: PaginatedSearchParams): Promise<Actio
     return handleError(error) as ErrorResponse;
   }
 
+
+}
+
+export async function incrementViews(params: IncrementViewsParams): Promise<ActionResponse<{views: number}>>{
+  const validationResult = await action({
+    params,
+    schema: incrementViewsSchema,
+  })
+
+
+  if(validationResult instanceof Error)
+    return handleError(validationResult) as ErrorResponse;
+
+  const { questionId } = validationResult.params!;
+
+  try {
+    const question = await Question.findById(questionId);
+
+    if(!question)
+      throw new Error("Question not Found");
+
+    question.views+=1;
+    await question.save();
+
+    return {success: true, data: {views: question.views}}
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
 
 }
