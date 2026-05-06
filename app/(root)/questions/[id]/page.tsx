@@ -89,7 +89,8 @@ const QuestionDetails = async ({ params }: { params: { id: string } }) => {
       </div>
 
       <section className="my-5">
-        <Answerform/>
+
+        <Answerform questionId ={question._id} />
       </section>
     </>
   );

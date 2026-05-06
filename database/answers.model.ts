@@ -1,4 +1,4 @@
-import { model, models, Schema, Types } from "mongoose";
+import { model, models, Schema, Types, Document } from "mongoose";
 
 export interface IAnswers {
 author: Types.ObjectId;
@@ -7,6 +7,8 @@ content: string;
 upvotes: number;
 downvotes: number;
 }
+
+export interface IAnswersDoc extends IAnswers, Document {}
 
 const AnswersSchema = new Schema<IAnswers>({
  author: {type: Schema.Types.ObjectId, ref: "User", required: true},
