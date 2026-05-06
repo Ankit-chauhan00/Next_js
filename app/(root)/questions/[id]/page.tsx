@@ -1,5 +1,6 @@
 import TagCard from "@/components/cards/TagCard";
 import { Preview } from "@/components/editor/Preview";
+import Answerform from "@/components/forms/Answerform";
 import Metric from "@/components/Metric";
 import UserAvatar from "@/components/UserAvatar";
 import ROUTES from "@/constants/routs";
@@ -86,6 +87,10 @@ const QuestionDetails = async ({ params }: { params: { id: string } }) => {
           />
         ))}
       </div>
+
+      <section className="my-5">
+        <Answerform/>
+      </section>
     </>
   );
 };
