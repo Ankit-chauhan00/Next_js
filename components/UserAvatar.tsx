@@ -15,7 +15,7 @@ interface Props {
 
 const UserAvatar = ({id, name, imageUrl,fallbackClassName, classname = 'h-9 w-9'}: Props) => {
 
-    const initials = name.split(" ").map((word: string)=>word[0]).join("").toUpperCase().slice(0,2);
+    const initials = name?.split(" ").map((word: string)=>word[0]).join("").toUpperCase().slice(0,2);
 
   return (<Link href={ROUTES.PROFILE(id)}>
     <Avatar className={classname}>

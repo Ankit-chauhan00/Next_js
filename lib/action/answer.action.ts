@@ -52,6 +52,7 @@ export async function CreateAnswer(params: createAnswerParams): Promise<ActionRe
     await session.commitTransaction();
 
     revalidatePath(ROUTES.QUESTION(questionId));
+    console.log("AnswerCreate:", newAnswer);
     return { success: true, data: JSON.parse(JSON.stringify(newAnswer)) };
   } catch (error) {
     await session.abortTransaction();
@@ -77,29 +78,28 @@ export async function getAnswers(
   let sortCritera = {};
 
   switch (filter) {
-    case 'latest':
-      sortCritera = {createdAt : -1};
+    case "latest":
+      sortCritera = { createdAt: -1 };
       break;
-    case 'oldest':
-      sortCritera = {createdAt : 1};
-      break;  
-    case 'popular':
-      sortCritera = {createdAt : -1};
-      break;  
+    case "oldest":
+      sortCritera = { createdAt: 1 };
+      break;
+    case "popular":
+      sortCritera = { createdAt: -1 };
+      break;
     default:
-      sortCritera ={createdAt: -1}
+      sortCritera = { createdAt: -1 };
       break;
   }
 
   try {
-    const totalAnswers = await Answers.countDocuments({question: questionId});
+    const totalAnswers = await Answers.countDocuments({ question: questionId });
 
-    const answers = await Answers.find({ question: questionId})
-    .populate('author', '_id name image')
-    .sort(sortCritera)
-    .skip(skip)
-    .limit(limit)
-
+    const answers = await Answers.find({ question: questionId })
+      .populate("author", "_id name image")
+      .sort(sortCritera)
+      .skip(skip)
+      .limit(limit);
 
     const isNext = totalAnswers > skip * answers.length;
 
@@ -109,10 +109,9 @@ export async function getAnswers(
         answers: JSON.parse(JSON.stringify(answers)),
         isNext,
         totalAnswers,
-      }
-    }
-
+      },
+    };
   } catch (error) {
-    return handleError(error) as ErrorResponse; 
+    return handleError(error) as ErrorResponse;
   }
 }

@@ -3,17 +3,14 @@ import { IUser } from "@/database/user.model";
 
 import { fetchHandler } from "./handlers/fetch";
 import ROUTES from "@/constants/routs";
+import { SignInWithOAuthParams } from "@/types/action";
+import { APIResponse } from "@/types/global";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
 
 export const api = {
   auth: {
-    oAuthSignIn: ({
-      user,
-      provider,
-      providerAccountId,
-    }: SignInWithOAuthParams) =>
+    oAuthSignIn: ({ user, provider, providerAccountId }: SignInWithOAuthParams) =>
       fetchHandler(`${API_BASE_URL}/auth/${ROUTES.SIGN_IN_WITH_OAUTH}`, {
         method: "POST",
         body: JSON.stringify({ user, provider, providerAccountId }),
@@ -37,8 +34,7 @@ export const api = {
         method: "PUT",
         body: JSON.stringify(userData),
       }),
-    delete: (id: string) =>
-      fetchHandler(`${API_BASE_URL}/users/${id}`, { method: "DELETE" }),
+    delete: (id: string) => fetchHandler(`${API_BASE_URL}/users/${id}`, { method: "DELETE" }),
   },
   accounts: {
     getAll: () => fetchHandler(`${API_BASE_URL}/accounts`),
@@ -58,8 +54,18 @@ export const api = {
         method: "PUT",
         body: JSON.stringify(accountData),
       }),
-    delete: (id: string) =>
-      fetchHandler(`${API_BASE_URL}/accounts/${id}`, { method: "DELETE" }),
-  }
-  
+    delete: (id: string) => fetchHandler(`${API_BASE_URL}/accounts/${id}`, { method: "DELETE" }),
+  },
+ 
+  ai: {
+    getAnswers: (question: string, content: string): APIResponse<string> =>
+       // @ts-expect-error- temporary type mismatch
+      fetchHandler(`${API_BASE_URL}/ai/answers`, {
+        method: "POST",
+        body: JSON.stringify({ question, content }),
+      }),
+  },
 };
+
+
+
