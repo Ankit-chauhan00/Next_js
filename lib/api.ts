@@ -56,16 +56,18 @@ export const api = {
       }),
     delete: (id: string) => fetchHandler(`${API_BASE_URL}/accounts/${id}`, { method: "DELETE" }),
   },
- 
   ai: {
-    getAnswers: (question: string, content: string): APIResponse<string> =>
-       // @ts-expect-error- temporary type mismatch
-      fetchHandler(`${API_BASE_URL}/ai/answers`, {
+    getAnswer: (question: string, content: string, userAnswer?: string) => {
+
+      return fetchHandler(`${API_BASE_URL}/ai/answers`, {
         method: "POST",
-        body: JSON.stringify({ question, content }),
-      }),
+
+        body: JSON.stringify({
+          question,
+          content,
+          userAnswer
+        }),
+      });
+    },
   },
 };
-
-
-

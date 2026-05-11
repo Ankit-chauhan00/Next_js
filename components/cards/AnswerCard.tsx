@@ -18,7 +18,7 @@ const AnswerCard = ({ _id, author, content, createdAt }: Answer) => {
             id={author._id}
             name={author.name}
             imageUrl={author.image}
-            className="size-5 rounded-full object-cover max-sm:mt-2"
+            classname="size-5 rounded-full object-cover max-sm:mt-2"
           />
 
           <Link

@@ -1,7 +1,7 @@
 import AllAnswers from "@/components/answers/AllAnswers";
 import TagCard from "@/components/cards/TagCard";
 import { Preview } from "@/components/editor/Preview";
-import Answerform from "@/components/forms/Answerform";
+import AnswerForm from "@/components/forms/Answerform";
 import Metric from "@/components/Metric";
 import UserAvatar from "@/components/UserAvatar";
 import ROUTES from "@/constants/routs";
@@ -32,7 +32,6 @@ const QuestionDetails = async ({ params }: { params: { id: string } }) => {
     pageSize: 10,
     filter: "latest",
   });
-
 
   const { author, createdAt, answers, views, tags, content, title } = question;
 
@@ -87,17 +86,17 @@ const QuestionDetails = async ({ params }: { params: { id: string } }) => {
         ))}
       </div>
 
-      <section className="my-5"> 
+      <section className="my-5">
         <AllAnswers
-        data={AnswersResult?.answers}
-        success={areAnswersloaded}
-        error={answersErrors}
-        totalAnswers={AnswersResult?.totalAnswers || 0}
+          data={AnswersResult?.answers}
+          success={areAnswersloaded}
+          error={answersErrors}
+          totalAnswers={AnswersResult?.totalAnswers || 0}
         />
       </section>
 
       <section className="my-5">
-        <Answerform questionId={question._id} />
+        <AnswerForm questionId={question._id} questionTitle={question.title} questionContent={question.content} />
       </section>
     </>
   );
