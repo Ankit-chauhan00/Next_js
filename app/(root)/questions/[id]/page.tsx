@@ -4,6 +4,7 @@ import { Preview } from "@/components/editor/Preview";
 import AnswerForm from "@/components/forms/Answerform";
 import Metric from "@/components/Metric";
 import UserAvatar from "@/components/UserAvatar";
+import Vote from "@/components/votes/Vote";
 import ROUTES from "@/constants/routs";
 import { getAnswers } from "@/lib/action/answer.action";
 import { getQuestion, incrementViews } from "@/lib/action/question.action";
@@ -47,7 +48,7 @@ const QuestionDetails = async ({ params }: { params: { id: string } }) => {
           </div>
 
           <div className="flex justify-end">
-            <p>Votes</p>
+           <Vote upvotes={question.upvotes} hasupVotes={true} downvotes={question.downvotes}  hasdownVotes={false}/>
           </div>
         </div>
 
