@@ -6,8 +6,12 @@ import { getTimeStamp } from "@/lib/utils";
 import { Preview } from "../editor/Preview";
 import UserAvatar from "../UserAvatar";
 import { Answer } from "@/types/global";
+import { Suspense } from "react";
+import { hasVoted } from "@/lib/action/vote.action";
+import Vote from "../votes/Vote";
 
-const AnswerCard = ({ _id, author, content, createdAt }: Answer) => {
+const AnswerCard = ({ _id, author, content, createdAt, upvotes, downvotes }: Answer) => {
+  const hasVotedPromise = hasVoted({ targetId: _id, targetType: "answer" });
   return (
     <article className="light-border border-b py-10">
       <span id={JSON.stringify(_id)} className="hash-span" />
@@ -21,22 +25,27 @@ const AnswerCard = ({ _id, author, content, createdAt }: Answer) => {
             classname="size-5 rounded-full object-cover max-sm:mt-2"
           />
 
-          <Link
-            href={ROUTES.PROFILE(author._id)}
-            className="flex flex-col max-sm:ml-1 sm:flex-row sm:items-center"
-          >
-            <p className="body-semibold text-dark300_light700">
-              {author.name ?? "Anonymous"}
-            </p>
+          <Link href={ROUTES.PROFILE(author._id)} className="flex flex-col max-sm:ml-1 sm:flex-row sm:items-center">
+            <p className="body-semibold text-dark300_light700">{author.name ?? "Anonymous"}</p>
 
-            <p className="small-regular text-light400_light500 ml-0.5 mt-0.5 line-clamp-1">
+            <p className="small-regular text-light400_light500 mt-0.5 ml-0.5 line-clamp-1">
               <span className="max-sm:hidden"> • </span>
               answered {getTimeStamp(createdAt)}
             </p>
           </Link>
         </div>
 
-        <div className="flex justify-end">Votes</div>
+        <div className="flex justify-end">
+          <Suspense fallback={<div>Loading...</div>}>
+            <Vote
+              targetType="answer"
+              targetId={_id}
+              upvotes={upvotes}
+              downvotes={downvotes}
+              hasVotedPromise={hasVotedPromise}
+            />
+          </Suspense>
+        </div>
       </div>
 
       <Preview content={content} />
