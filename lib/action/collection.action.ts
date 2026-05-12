@@ -33,16 +33,17 @@ export async function toggelSaveQuestion(params: CollectionBasedParams): Promise
 
     if (collection) {
       await Collection.findByIdAndDelete(collection.id);
-      return {success: true, data: { saved: false}}
+      return { success: true, data: { saved: false } };
     }
 
     await Collection.create({
-        question: questionId,
-        author: userId
-    })
+      question: questionId,
+      author: userId,
+    });
 
-    revalidatePath(ROUTES.QUESTION(questionId))
+    revalidatePath(ROUTES.QUESTION(questionId));
 
+    return { success: true, data: { saved: true } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

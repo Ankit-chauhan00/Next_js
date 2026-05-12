@@ -3,6 +3,7 @@ import TagCard from "@/components/cards/TagCard";
 import { Preview } from "@/components/editor/Preview";
 import AnswerForm from "@/components/forms/Answerform";
 import Metric from "@/components/Metric";
+import SaveQuestion from "@/components/questions/SaveQuestion";
 import UserAvatar from "@/components/UserAvatar";
 import Vote from "@/components/votes/Vote";
 import ROUTES from "@/constants/routs";
@@ -69,6 +70,10 @@ const QuestionDetails = async ({ params }: { params: { id: string } }) => {
                 downvotes={question.downvotes}
                 hasVotedPromise={hasVotedPromise}
               />
+            </Suspense>
+
+            <Suspense fallback={<div>Loading...</div>}>
+            <SaveQuestion questionId={question._id} />
             </Suspense>
           </div>
         </div>
