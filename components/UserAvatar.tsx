@@ -18,15 +18,14 @@ const UserAvatar = ({id, name, imageUrl,fallbackClassName, classname = 'h-9 w-9'
     const initials = name?.split(" ").map((word: string)=>word[0]).join("").toUpperCase().slice(0,2);
 
   return (<Link href={ROUTES.PROFILE(id)}>
-    <Avatar className={classname}>
+    <Avatar className={cn("relative", classname)}>
         {
             imageUrl ? (
                 <Image
                 src={imageUrl}
                 alt={name}
                 className='w-full h-full object-cover rounded-full'
-                width={36}
-                height={36}
+                fill
                 quality={100}
                 />
             ):(
