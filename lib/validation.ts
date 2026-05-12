@@ -157,24 +157,26 @@ export const AIanswerSchema = z.object({
     .min(5, { message: "Question is required" })
     .max(130, { message: "Question cannot exceed 130 characters" }),
 
-  content: z
-  .string()
-  .min(100, {message: "Answer has to have more than 100 charactes"}),
+  content: z.string().min(100, { message: "Answer has to have more than 100 charactes" }),
 
-  userAnswer: z.string().optional()
+  userAnswer: z.string().optional(),
 });
 
 export const CreateVoteSchema = z.object({
-  targetId: z.string().min(1, {message: "Target Id is Required"}),
-  targetType: z.enum(['question', 'answer'], {message: "Inavalid target type"}),
-  voteType: z.enum(["upvote", "downvote"], {message: "Invalid vote type"})
-})
+  targetId: z.string().min(1, { message: "Target Id is Required" }),
+  targetType: z.enum(["question", "answer"], { message: "Inavalid target type" }),
+  voteType: z.enum(["upvote", "downvote"], { message: "Invalid vote type" }),
+});
 
 export const UpdatedVoteCountSchema = CreateVoteSchema.extend({
-change: z.number().int().min(-1).max(1),
-})
+  change: z.number().int().min(-1).max(1),
+});
 
 export const HasVoteSchema = CreateVoteSchema.pick({
   targetId: true,
   targetType: true,
-})
+});
+
+export const CollectionBaseSchema = z.object({
+  questionId: z.string().min(1, { message: "Question Id is Required" }),
+});

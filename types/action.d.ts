@@ -19,9 +19,9 @@ interface AuthCredentials {
 }
 
 interface CreateQuestionParams {
-    title: string;
-    content: string;
-    tags: string[]
+  title: string;
+  content: string;
+  tags: string[];
 }
 interface EditQuestionParams extends CreateQuestionParams {
   questionId: string;
@@ -30,12 +30,12 @@ interface EditQuestionParams extends CreateQuestionParams {
 interface GetQuestionParams {
   questionId: string;
 }
-interface getTagQuestionParams extends Omit<PaginatedSearchParams, "filter">{
+interface getTagQuestionParams extends Omit<PaginatedSearchParams, "filter"> {
   tagId: string;
 }
 
 interface IncrementViewsParams {
-  questionId: string
+  questionId: string;
 }
 
 interface createAnswerParams {
@@ -43,15 +43,14 @@ interface createAnswerParams {
   content: string;
 }
 
-interface GetAnswersParams extends PaginatedSearchParams{
+interface GetAnswersParams extends PaginatedSearchParams {
   questionId: string;
 }
 
-
 interface CreateVoteParams {
   targetId: string;
-  targetType: 'question' | 'answer';
-  voteType: 'upvote' | 'downvote';
+  targetType: "question" | "answer";
+  voteType: "upvote" | "downvote";
 }
 interface UpdateVoteCountParams extends CreateVoteParams {
   change: 1 | -1;
@@ -62,4 +61,8 @@ type HasVotedparams = Pick<CreateVoteParams, "targetId" | "targetType">;
 interface hasVotedResponse {
   hasUpvoted: boolean;
   hasDownvoted: boolean;
+}
+
+interface CollectionBasedParams {
+  questionId: string;
 }
