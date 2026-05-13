@@ -1,35 +1,48 @@
 "use client";
 
-import { toggelSaveQuestion } from "@/lib/action/collection.action";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { use, useState } from "react";
 import { toast } from "sonner";
+import { ActionResponse } from "@/types/global";
+import { toggelSaveQuestion } from "@/lib/action/collection.action";
 
-const SaveQuestion = ({ questionId }: { questionId: string }) => {
+const SaveQuestion = ({
+  questionId,
+  hasSavedQuestionPromise,
+}: {
+  questionId: string;
+  hasSavedQuestionPromise: Promise<ActionResponse<{ saved: boolean }>>;
+}) => {
   const session = useSession();
   const userId = session?.data?.user?.id;
 
-  const [isLoading, setisLoading] = useState(false);
-  let hasSaved = false;
+  const { data } = use(hasSavedQuestionPromise);
+
+  const initialSaved = data?.saved || false;
+
+  const [hasSaved, setHasSaved] = useState(initialSaved);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSave = async () => {
     if (isLoading) return;
-    if (!userId) return toast.error("you need to be Loggedin to save a Question");
+    if (!userId) return toast.error("You need to be Logged in First");
 
-    setisLoading(true);
+    setIsLoading(true);
 
     try {
       const { success, data, error } = await toggelSaveQuestion({ questionId });
 
-      if (!success) throw new Error(error?.message || "An Error Occured");
+      if (!success) throw new Error(error?.message || "An error occurred");
 
+      // UPDATE local state after successful save
+      setHasSaved(data?.saved ?? false);
       toast.success(`Question ${data?.saved ? "saved" : "unsaved"} successfully`);
-      hasSaved = !hasSaved;
+      console.log("Saved Toggle:", data?.saved);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "An Error occured");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
-      setisLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -40,7 +53,7 @@ const SaveQuestion = ({ questionId }: { questionId: string }) => {
       height={18}
       alt="save"
       className={`cursor-pointer ${isLoading && "opacity-50"}`}
-      aria-label="save question"
+      aria-label="Save question"
       onClick={handleSave}
     />
   );
