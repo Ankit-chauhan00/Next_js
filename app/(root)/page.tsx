@@ -8,6 +8,8 @@ import DataRenderer from "@/components/DataRenderer";
 import { EMPTY_QUESTION } from "@/constants/states";
 import { getQuestions } from "@/lib/action/question.action";
 import ROUTES from "@/constants/routs";
+import CommonFilters from "@/components/filters/CommonFilters";
+import { HomePageFilters } from "@/constants/filters";
 
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
@@ -37,7 +39,7 @@ const Home = async ({ searchParams }: SearchParams) => {
           <Link href={ROUTES.ASK_QUESTION}>Ask a Question</Link>
         </Button>
       </section>
-      <section className="mt-11">
+      <section className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearch
           route="/"
           imgSrc="/icons/search.svg"
@@ -45,6 +47,12 @@ const Home = async ({ searchParams }: SearchParams) => {
           otherClasses="flex-1"
         />
       </section>
+
+    <CommonFilters 
+    filters = {HomePageFilters}
+    otherClasses = "w-full mt-10"
+    containerClasses = "max-md:flex"
+    />
       <HomeFilter />
 
       <DataRenderer

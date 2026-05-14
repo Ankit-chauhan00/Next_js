@@ -29,7 +29,7 @@ const Collections = async ({ searchParams }: SearchParams) => {
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">Saved Question</h1>
-      <div className="max: mt-11 flex justify-between gap-5 sm:flex-col sm:items-center">
+      <div className="mt-11">
         <LocalSearch
           route={ROUTES.COLLECTION}
           imgSrc="/icons/search.svg"

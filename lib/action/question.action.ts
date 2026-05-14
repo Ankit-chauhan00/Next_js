@@ -235,7 +235,7 @@ export async function getQuestions(params: PaginatedSearchParams): Promise<Actio
 
   switch (filter) {
     case'newest':
-    sortCriteria = { createedAt: -1};
+    sortCriteria = { createdAt: -1};
     break;
 
     case 'unanswered':
