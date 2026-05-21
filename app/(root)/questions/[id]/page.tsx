@@ -18,8 +18,14 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { Suspense } from "react";
 
-const QuestionDetails = async ({ params }: { params: { id: string } }) => {
+interface QuestionPageProps {
+  params: { id: string };
+  searchParams: Promise<Record<string, string>>;
+}
+
+const QuestionDetails = async ({ params, searchParams }: QuestionPageProps) => {
   const { id } = await params;
+  const { page, pageSize, filter } = await searchParams;
   const { success, data: question } = await getQuestion({ questionId: id });
 
   after(async () => {
@@ -33,9 +39,9 @@ const QuestionDetails = async ({ params }: { params: { id: string } }) => {
     error: answersErrors,
   } = await getAnswers({
     questionId: id,
-    page: 1,
-    pageSize: 10,
-    filter: "latest",
+    page: Number(page) || 1,
+    pageSize: Number(pageSize) || 10,
+    filter: filter || "latest",
   });
 
   // its a promise not a value as we hanvent awaited it
@@ -57,7 +63,7 @@ const QuestionDetails = async ({ params }: { params: { id: string } }) => {
             </Link>
           </div>
 
-          <div className="flex justify-end items-center gap-2">
+          <div className="flex items-center justify-end gap-2">
             <Suspense fallback={<div>Loading...</div>}>
               <Vote
                 targetType="question"
@@ -69,7 +75,7 @@ const QuestionDetails = async ({ params }: { params: { id: string } }) => {
             </Suspense>
 
             <Suspense fallback={<div>Loading...</div>}>
-              <SaveQuestion questionId={question._id}   hasSavedQuestionPromise={ hasSavedQuestionPromise}/>
+              <SaveQuestion questionId={question._id} hasSavedQuestionPromise={hasSavedQuestionPromise} />
             </Suspense>
           </div>
         </div>

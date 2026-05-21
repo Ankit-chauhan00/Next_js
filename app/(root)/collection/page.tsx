@@ -6,6 +6,8 @@ import ROUTES from "@/constants/routs";
 import { getSavedQuestion } from "@/lib/action/collection.action";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import CommonFilters from "@/components/filters/CommonFilters";
+import { CollectionFilters } from "@/constants/filters";
 
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
@@ -29,13 +31,14 @@ const Collections = async ({ searchParams }: SearchParams) => {
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">Saved Question</h1>
-      <div className="mt-11">
+      <div className="mt-11 flex items-center gap-4">
         <LocalSearch
           route={ROUTES.COLLECTION}
           imgSrc="/icons/search.svg"
           placeholder="Search questions..."
           otherClasses="flex-1"
         />
+        <CommonFilters filters={CollectionFilters} otherClasses="min-h-[40px]" containerClasses=""/>
       </div>
 
       <DataRenderer

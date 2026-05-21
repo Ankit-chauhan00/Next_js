@@ -50,7 +50,7 @@ const CommonFilters = ({ filters, otherClasses = "", containerClasses = "" }: Pr
 
   return (
     <div className={cn("relative", containerClasses)}>
-      <Select onValueChange={(value) => handleUpdateParams(value)} defaultValue={paramsFilter || undefined}>
+      <Select onValueChange={handleUpdateParams} defaultValue={paramsFilter || ""}>
         <SelectTrigger
           className={cn(
             "body-regular no-focus light-border background-light800_dark300 text-dark500_light700 border px-5 py-2.5",

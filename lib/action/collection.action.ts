@@ -9,7 +9,6 @@ import { Collection, Question } from "@/database";
 import { revalidatePath } from "next/cache";
 import ROUTES from "@/constants/routs";
 import mongoose, { PipelineStage } from "mongoose";
-import { ValidationError } from "../http-error";
 
 export async function toggelSaveQuestion(params: CollectionBasedParams): Promise<ActionResponse<{ saved: boolean }>> {
   const validationResult = await action({
@@ -73,7 +72,7 @@ export async function hasSavedQuestion(params: CollectionBasedParams): Promise<A
       author: new mongoose.Types.ObjectId(userId),
     });
 
-    // !! collection means collection = "A truthy value" so --> !collection(non-zero value) = false and further !false = true
+    // collection means collection = "A truthy value" so --> !collection(non-zero value) = false and further !false = true
     // this is mainly for converting anything to boolean
     return { success: true, data: { saved: !!collection } };
   } catch (error) {
@@ -101,9 +100,9 @@ export async function getSavedQuestion(
   const sortOptions: Record<string, Record<string, 1 | -1>> = {
     mostrecent: { "question.createdAt": -1 },
     oldest: { "question.createdAt": 1 },
-    mostVoted: { "question.upvotes": -1 },
-    mostViewed: { "question.views": -1 },
-    mostAnswered: { "question.answers": -1 },
+    mostvoted: { "question.upvotes": -1 },
+    mostviewed: { "question.views": -1 },
+    mostanswered: { "question.answers": -1 },
   };
 
   const sortCriteria = sortOptions[filter as keyof typeof sortOptions] || { "question.createdAt": -1 };

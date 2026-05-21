@@ -1,6 +1,8 @@
 import TagCard from "@/components/cards/TagCard";
 import DataRenderer from "@/components/DataRenderer";
+import CommonFilters from "@/components/filters/CommonFilters";
 import LocalSearch from "@/components/search/LocalSearch";
+import { TagFilters } from "@/constants/filters";
 import ROUTES from "@/constants/routs";
 import { EMPTY_TAGS } from "@/constants/states";
 import { getTags } from "@/lib/action/tag.action";
@@ -25,7 +27,7 @@ const Tags = async ({searchParams}: RouteParams) => {
     <> 
     <h1 className="h1-bold text-dark100_light900 text-3xl">Tags</h1>
 
-    <section className="mt-11">
+    <section className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
       <LocalSearch
       //where we are on which route we are apping search querry
       route={ROUTES.TAGS}
@@ -33,6 +35,10 @@ const Tags = async ({searchParams}: RouteParams) => {
       placeholder="Search Tags"
       iconPosition= "left"
       otherClasses="flex-1"
+      />
+      <CommonFilters 
+      filters={TagFilters}
+      otherClasses="min-h-[56px] sm:min-w-[170px]"
       />
     </section>
 
@@ -42,7 +48,7 @@ const Tags = async ({searchParams}: RouteParams) => {
     data={tags}
     empty={EMPTY_TAGS}
     render={(tags)=>(
-      <div className="mt-10 flex w-full flex-wrap gap-4">
+      <div className="mt-10 flex w-full  justify-center flex-wrap gap-6">
         {
           tags.map((tag)=><TagCard key={tag._id} {... tag} />)
         }

@@ -85,7 +85,7 @@ export async function getAnswers(
       sortCritera = { createdAt: 1 };
       break;
     case "popular":
-      sortCritera = { createdAt: -1 };
+      sortCritera = { upvotes: -1 };
       break;
     default:
       sortCritera = { createdAt: -1 };
