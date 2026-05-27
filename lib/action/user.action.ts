@@ -1,15 +1,16 @@
 "use server";
 
-import { ActionResponse, ErrorResponse, PaginatedSearchParams, Users } from "@/types/global";
+import { ActionResponse, ErrorResponse, PaginatedSearchParams, Questions, Users } from "@/types/global";
 import action from "../handlers/action";
-import { getUserSchema, PaginatedSearchParamsSchema } from "../validation";
+import { GetUserquestionSchema, getUserSchema, PaginatedSearchParamsSchema } from "../validation";
 import handleError from "../handlers/error";
 import { QueryFilter } from "mongoose";
 import { Answers, Question, User } from "@/database";
-import { GetUserParams } from "@/types/action";
+import { GetUserParams, GetUserQuestionParams } from "@/types/action";
 
-
-export async function getUsers(params: PaginatedSearchParams):Promise<ActionResponse<{ users: Users[]; isNext: boolean }>> {
+export async function getUsers(
+  params: PaginatedSearchParams
+): Promise<ActionResponse<{ users: Users[]; isNext: boolean }>> {
   const validationResult = await action({
     params,
     schema: PaginatedSearchParamsSchema,
@@ -17,85 +18,122 @@ export async function getUsers(params: PaginatedSearchParams):Promise<ActionResp
 
   if (validationResult instanceof Error) return handleError(validationResult) as ErrorResponse;
 
-  const { page = 1, pageSize = 10 , query, filter}= params;
+  const { page = 1, pageSize = 10, query, filter } = params;
 
   const skip = (page - 1) * pageSize;
   const limit = pageSize;
 
   const filterQuery: QueryFilter<typeof User> = {};
 
-  if(query){
-    filterQuery.$or = [
-        {name: {$regex: query, $options: "i"}},
-        {email: {$regex: query, $options: "i"}}
-    ]
+  if (query) {
+    filterQuery.$or = [{ name: { $regex: query, $options: "i" } }, { email: { $regex: query, $options: "i" } }];
   }
 
   let sortCriteria = {};
 
-  switch(filter) {
-    case 'newest':
-        sortCriteria = {createdAt: -1}
-        break;
-    case 'oldest':
-        sortCriteria = {createdAt: 1}
-        break;    
-    case 'popular':
-        sortCriteria = {reputation: -1}
-        break; 
-    default: 
-        sortCriteria = {createdAt: -1}
-        break;       
+  switch (filter) {
+    case "newest":
+      sortCriteria = { createdAt: -1 };
+      break;
+    case "oldest":
+      sortCriteria = { createdAt: 1 };
+      break;
+    case "popular":
+      sortCriteria = { reputation: -1 };
+      break;
+    default:
+      sortCriteria = { createdAt: -1 };
+      break;
   }
-
-
 
   try {
     const totalUsers = await User.countDocuments(filterQuery);
 
-    const users = await User.find(filterQuery)
-    .sort(sortCriteria)
-    .skip(skip)
-    .limit(limit)
+    const users = await User.find(filterQuery).sort(sortCriteria).skip(skip).limit(limit);
 
     const isNext = totalUsers > skip + users.length;
 
     return {
-        success: true,
-        data: {
-            users: JSON.parse(JSON.stringify(users)),
-            isNext,
-        }
-    }
-
-    
+      success: true,
+      data: {
+        users: JSON.parse(JSON.stringify(users)),
+        isNext,
+      },
+    };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getUser(params: GetUserParams): Promise<ActionResponse<{user: Users, totalQuestions: number,totalAnswers: number }>>{
-  const validationResult = await action({params, schema: getUserSchema} );
+export async function getUser(
+  params: GetUserParams
+): Promise<ActionResponse<{ user: Users; totalQuestions: number; totalAnswers: number }>> {
+  const validationResult = await action({ params, schema: getUserSchema });
 
-  if(validationResult instanceof Error)
-    return handleError(validationResult) as ErrorResponse;
+  if (validationResult instanceof Error) return handleError(validationResult) as ErrorResponse;
 
-  const {userId} = params;
+  const { userId } = params;
   try {
     const user = await User.findById(userId);
 
-    if(!user) throw new Error("User not Found");
+    if (!user) throw new Error("User not Found");
 
-    const totalQuestions  = await Question.countDocuments({author: userId})
-    const totalAnswers = await Answers.countDocuments({author: userId});
+    const totalQuestions = await Question.countDocuments({ author: userId });
+    const totalAnswers = await Answers.countDocuments({ author: userId });
 
-    return {success: true, data:{
-      user: JSON.parse(JSON.stringify(user)),
-      totalQuestions,
-      totalAnswers,
-    }}
+    return {
+      success: true,
+      data: {
+        user: JSON.parse(JSON.stringify(user)),
+        totalQuestions,
+        totalAnswers,
+      },
+    };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
+}
 
+export async function getUserQuestion(
+  params: GetUserQuestionParams
+): Promise<ActionResponse<{ questions: Questions[]; isNext: boolean }>> {
+  const validationResult = await action({
+    params,
+    schema: GetUserquestionSchema,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { userId, page = 1, pageSize = 10 } = params;
+
+  const skip = (Number(page) - 1) * pageSize;
+  const limit = pageSize;
+
+  try {
+
+    const totalQuestions = await Question.countDocuments({author: userId});
+
+    const questions = await Question.find({author: userId})
+    .populate("tags", "name")
+    .populate("author", "name image")
+    .sort({createdAt: -1})
+    .skip(skip)
+    .limit(limit);
+
+    const isNext = totalQuestions > skip + questions.length;
+
+    return{
+      success: true,
+      data: {
+        questions: JSON.parse(JSON.stringify(questions)),
+        isNext
+      }
+    }
+
+
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
 }
