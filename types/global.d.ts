@@ -89,6 +89,7 @@ interface Users {
   location?: string;
   portfolio?: string;
   reputation?: number;
+  createdAt: Date
 }
 interface Collections {
   _id: string;

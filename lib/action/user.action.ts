@@ -74,7 +74,7 @@ export async function getUsers(params: PaginatedSearchParams):Promise<ActionResp
   }
 }
 
-export async function getUser(params: GetUserParams): Promise<ActionResponse<{user: typeof User, totalQuestions: number,totalAnswers: number }>>{
+export async function getUser(params: GetUserParams): Promise<ActionResponse<{user: Users, totalQuestions: number,totalAnswers: number }>>{
   const validationResult = await action({params, schema: getUserSchema} );
 
   if(validationResult instanceof Error)
