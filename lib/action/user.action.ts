@@ -1,12 +1,12 @@
 "use server";
 
-import { ActionResponse, ErrorResponse, PaginatedSearchParams, Questions, Users } from "@/types/global";
+import { ActionResponse, Answer, ErrorResponse, PaginatedSearchParams, Questions, Users } from "@/types/global";
 import action from "../handlers/action";
-import { GetUserquestionSchema, getUserSchema, PaginatedSearchParamsSchema } from "../validation";
+import { GetUserAnswerSchema, GetUserquestionSchema, getUserSchema, PaginatedSearchParamsSchema } from "../validation";
 import handleError from "../handlers/error";
 import { QueryFilter } from "mongoose";
 import { Answers, Question, User } from "@/database";
-import { GetUserParams, GetUserQuestionParams } from "@/types/action";
+import { GetUserAnswersParams, GetUserParams, GetUserQuestionParams } from "@/types/action";
 
 export async function getUsers(
   params: PaginatedSearchParams
@@ -128,6 +128,48 @@ export async function getUserQuestion(
       success: true,
       data: {
         questions: JSON.parse(JSON.stringify(questions)),
+        isNext
+      }
+    }
+
+
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getUserAnswers(
+  params: GetUserAnswersParams
+): Promise<ActionResponse<{ answers: Answer[]; isNext: boolean }>> {
+  const validationResult = await action({
+    params,
+    schema: GetUserAnswerSchema,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { userId, page = 1, pageSize = 10 } = params;
+
+  const skip = (Number(page) - 1) * pageSize;
+  const limit = pageSize;
+
+  try {
+
+    const totalAnswers = await Answers.countDocuments({author: userId});
+
+    const answers = await Answers.find({author: userId})
+    .populate("author", "_id name image")
+    .skip(skip)
+    .limit(limit);
+
+    const isNext = totalAnswers> skip + answers.length;
+
+    return{
+      success: true,
+      data: {
+        answers: JSON.parse(JSON.stringify(answers)),
         isNext
       }
     }
