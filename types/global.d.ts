@@ -97,3 +97,9 @@ interface Collections {
   question: Questions;
 }
 
+interface BadgeCounts {
+  GOLD: number;
+  SILVER: number;
+  BRONZE: number;
+}
+
