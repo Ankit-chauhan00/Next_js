@@ -10,6 +10,7 @@ import { getQuestions } from "@/lib/action/question.action";
 import ROUTES from "@/constants/routs";
 import CommonFilters from "@/components/filters/CommonFilters";
 import { HomePageFilters } from "@/constants/filters";
+import Pagination from "@/components/Pagination";
 
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
@@ -25,7 +26,7 @@ const Home = async ({ searchParams }: SearchParams) => {
     filter: filter || "",
   });
 
-  const { questions } = data || {};
+  const { questions , isNext  } = data || {};
 
   return (
     <>
@@ -68,6 +69,8 @@ const Home = async ({ searchParams }: SearchParams) => {
           </div>
         )}
       />
+
+      <Pagination page={page} isNext={isNext || false} />
     </>
   );
 };

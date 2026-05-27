@@ -306,3 +306,22 @@ export async function incrementViews(params: IncrementViewsParams): Promise<Acti
   }
 
 }
+
+export async function getHotQuestions(): Promise<ActionResponse<Questions[]>>{
+  try {
+
+    await dbConnect();
+
+
+    const question = await Question.find()
+    .sort({views: -1, upvotes: -1})
+    .limit(5);
+
+    return {
+      success: true,
+      data: JSON.parse(JSON.stringify(question))
+    }
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}

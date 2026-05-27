@@ -1,5 +1,6 @@
 import UserCards from "@/components/cards/UserCards";
 import DataRenderer from "@/components/DataRenderer";
+import Pagination from "@/components/Pagination";
 import LocalSearch from "@/components/search/LocalSearch";
 import ROUTES from "@/constants/routs";
 import { EMPTY_USERS } from "@/constants/states";
@@ -17,7 +18,7 @@ const Community = async ({ searchParams }: RouteParams) => {
     filter,
   });
 
-  const {users} = data || {};
+  const {users, isNext} = data || {};
   return (
     <div className="">
       <h1 className="h1-bold text-dark100_light900">All Users</h1>
@@ -44,6 +45,8 @@ const Community = async ({ searchParams }: RouteParams) => {
         </div>
       )}
       />
+
+      <Pagination page={page} isNext={isNext || false}/>
     </div>
   );
 };

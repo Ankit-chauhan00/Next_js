@@ -5,6 +5,7 @@ import handleError from "../handlers/error";
 import { QueryFilter } from "mongoose";
 import { Question, Tag } from "@/database";
 import { getTagQuestionParams } from "@/types/action";
+import dbConnect from "../mongoose";
 
 export const getTags = async (
   params: PaginatedSearchParams
@@ -124,3 +125,21 @@ export const getTagQuestions = async (
     return handleError(error) as ErrorResponse;
   }
 };
+
+export const getTopTags = async (): Promise<ActionResponse<Tagg[]>> =>{
+  try {
+    await dbConnect();
+
+    const tags = await Tag.find()
+    .sort({ questions: -1})
+    .limit(5);
+
+    return {
+      success: true,
+      data: JSON.parse(JSON.stringify(tags)),
+    }
+    
+  } catch (error) {
+    return handleError(error) as ErrorResponse
+  }
+}

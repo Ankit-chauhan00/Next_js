@@ -103,7 +103,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       const userInfo = {
         name: user.name || user.email?.split('@')[0] || 'User',
-        email: user.email || profile?.email,
+        email: user.email || profile?.email || undefined,
         image: user.image || profile?.avatar_url || undefined,
         username: account.provider === "github" 
           ? (profile?.login as string) 
