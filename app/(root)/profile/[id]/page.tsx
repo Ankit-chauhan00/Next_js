@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import UserAvatar from "@/components/UserAvatar";
 import ProfileLinks from "@/components/users/ProfileLinks";
-import { getUser, getUserAnswers, getUserQuestion } from "@/lib/action/user.action";
+import { getUser, getUserAnswers, getUserQuestion, getUserTags } from "@/lib/action/user.action";
 import { RouteParams } from "@/types/global";
 import { notFound } from "next/navigation";
 import dayjs from "dayjs";
@@ -10,10 +10,13 @@ import { Button } from "@/components/ui/button";
 import Stats from "@/components/users/Stats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DataRenderer from "@/components/DataRenderer";
-import { EMPTY_ANSWERS, EMPTY_QUESTION } from "@/constants/states";
+import { EMPTY_ANSWERS, EMPTY_QUESTION, EMPTY_TAGS } from "@/constants/states";
 import QuestionCard from "@/components/cards/QuestionCard";
 import Pagination from "@/components/Pagination";
 import AnswerCard from "@/components/cards/AnswerCard";
+import TagCard from "@/components/cards/TagCard";
+
+// we can use promissise.all to avoid sequestial request
 
 const Profile = async ({ params, searchParams }: RouteParams) => {
   const { id } = await params;
@@ -23,7 +26,33 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
 
   const loggedInUser = await auth();
 
-  const { success, data, error } = await getUser({ userId: id });
+  const [userResult, questionResult, answerResult, tagResult] = await Promise.all([
+    getUser({ userId: id }),
+
+    getUserQuestion({
+      userId: id,
+      page: Number(page) || 1,
+      pageSize: Number(pageSize) || 10,
+    }),
+
+    getUserAnswers({
+      userId: id,
+      page: Number(page) || 1,
+      pageSize: Number(pageSize) || 10,
+    }),
+
+    getUserTags({
+      userId: id,
+    }),
+  ]);
+
+  const { success, data, error } = userResult;
+
+  const { success: userQuestionSuccess, data: userQuestions, error: userQuestionError } = questionResult;
+
+  const { success: userAnswerSuccess, data: userAnswers, error: userAnswerError } = answerResult;
+
+  const { success: userTagSuccess, data: userTag, error: userTagError } = tagResult;
 
   if (!success) {
     return (
@@ -32,34 +61,15 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
       </>
     );
   }
-
   const { user, totalQuestions, totalAnswers } = data!;
 
   const { _id, name, image, portfolio, location, createdAt, username, bio } = user;
 
-  const {
-    success: userQuestionSuccess,
-    data: userQuestions,
-    error: userQuestionError,
-  } = await getUserQuestion({
-    userId: id,
-    page: Number(page) || 1,
-    pageSize: Number(pageSize) || 10,
-  });
-
   const { questions, isNext: hasMoreQuestions } = userQuestions!;
 
-  const {
-    success: userAnswerSuccess,
-    data: userAnswers,
-    error: userAnswerError,
-  } = await getUserAnswers({
-    userId: id,
-    page: Number(page) || 1,
-    pageSize: Number(pageSize) || 10,
-  });
+  const { answers } = userAnswers!;
 
-  const { answers, isNext: hasMoreAnswers } = userAnswers!;
+  const { tags } = userTag!;
 
   return (
     <>
@@ -143,13 +153,13 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               render={() => (
                 <div className="flex w-full flex-col gap-6">
                   {answers.map((answer) => (
-                    <AnswerCard 
-                    key={answer._id} 
-                    {...answer} 
-                    content={answer.content.slice(0, 27)}
-                    containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"
-                    showReadMore
-                     />
+                    <AnswerCard
+                      key={answer._id}
+                      {...answer}
+                      content={answer.content.slice(0, 27)}
+                      containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"
+                      showReadMore
+                    />
                   ))}
                 </div>
               )}
@@ -161,7 +171,19 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
         <div className="flex w-full min-w-[250px] flex-1 flex-col max-lg:hidden">
           <h3 className="h3-bold text-dark200_light900">Top Tech</h3>
           <div className="mt-7 flex flex-col gap-4">
-            <p>List of Tags</p>
+            <DataRenderer
+              data={tags}
+              empty={EMPTY_TAGS}
+              success={userTagSuccess}
+              error={userTagError}
+              render={() => (
+                <div className="flex w-full flex-col gap-6">
+                  {tags.map((tag) => (
+                    <TagCard key={tag._id} _id={tag._id} name={tag.name} questions={tag.count} showCount compact />
+                  ))}
+                </div>
+              )}
+            />
           </div>
         </div>
       </section>
