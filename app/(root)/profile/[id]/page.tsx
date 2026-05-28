@@ -137,14 +137,14 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               render={() => (
                 <div className="flex w-full flex-col gap-6">
                   {questions.map((question) => (
-                    <QuestionCard key={question._id} question={question} />
+                    <QuestionCard key={question._id} question={question} showActionBtn={loggedInUser?.user?.id === question.author._id} />
                   ))}
                 </div>
               )}
             />
             <Pagination page={page} isNext={hasMoreQuestions} />
           </TabsContent>
-          <TabsContent className="mt-5 flex w-full flex-col gap-6" value="answers">
+          <TabsContent className="mt-5 flex w-full flex-col gap-10" value="answers">
             <DataRenderer
               data={answers}
               empty={EMPTY_ANSWERS}
@@ -159,6 +159,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
                       content={answer.content.slice(0, 27)}
                       containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"
                       showReadMore
+                      showActionBtn={loggedInUser?.user?.id === answer.author._id}
                     />
                   ))}
                 </div>
