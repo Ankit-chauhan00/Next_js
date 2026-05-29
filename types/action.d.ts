@@ -1,4 +1,6 @@
+import { IIntarctionDoc } from "@/database/intraction.model";
 import { PaginatedSearchParams } from "./global";
+import mongoose from "mongoose";
 
 interface SignInWithOAuthParams {
   provider: "github" | "google";
@@ -89,4 +91,18 @@ interface DeletUserQuestionParams{
 
 interface DeleteUserAnswerPArams{
   answerId: string;
+}
+
+interface CreateInteractionParams {
+  action: "view" | "upvote" | "downvote" | "bookmark" |  "post" | "edit"| "delete"| "search";
+  actionId: string;
+  authorId: string;
+  actionTarget: "question" | "answer";
+}
+
+interface UpdateReputationParams {
+interaction: IIntarctionDoc;
+session: mongoose.ClientSession;
+performerId: string;
+authorId: string;
 }

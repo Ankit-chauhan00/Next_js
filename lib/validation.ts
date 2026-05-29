@@ -1,4 +1,5 @@
 // /lib/validations.ts
+import { InteractionActionEnums } from "@/database/intraction.model";
 import { z } from "zod";
 
 export const SignInSchema = z.object({
@@ -203,4 +204,11 @@ export const DeleteUserQuestionSchema = z.object({
 })
 export const DeleteUserAnswerSchema = z.object({
   answerId: z.string().min(1, {message: "Answer Id is Required"})
+})
+
+export const CreateInteractionSchema = z.object({
+  action: z.enum(InteractionActionEnums),
+  actionTarget: z.enum(["question", "answer"]),
+  actionId: z.string().min(1),
+  authorId: z.string().min(1)
 })
