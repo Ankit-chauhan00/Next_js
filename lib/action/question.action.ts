@@ -10,6 +10,8 @@ import Tag, { ITagDoc } from "@/database/tag.model";
 import TagQuestion from "@/database/tagQuestion.model";
 import dbConnect from "../mongoose";
 import { CreateQuestionParams, EditQuestionParams, GetQuestionParams, IncrementViewsParams } from "@/types/action";
+import { after } from "next/server";
+import { CreateIntaction } from "./intraction.action";
 
 export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<Questions>> {
   const validationResult = await action({ params, schema: AskQuestionSchema, authorize: true });
@@ -53,6 +55,16 @@ export async function createQuestion(params: CreateQuestionParams): Promise<Acti
     await Question.findByIdAndUpdate(question._id, { $push: { tags: { $each: tagIds } } }, { session });
 
     await session.commitTransaction();
+
+    // log the intraction
+    after(async()=>{
+      await CreateIntaction({
+        action: "post",
+        actionId: question._id.toString(),
+        actionTarget: "question",
+        authorId: userId as string,
+      })
+    })
 
     return { success: true, data: JSON.parse(JSON.stringify(question)) };
   } catch (error) {

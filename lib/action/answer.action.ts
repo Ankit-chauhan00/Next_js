@@ -10,6 +10,8 @@ import mongoose from "mongoose";
 import { Question } from "@/database";
 import { revalidatePath } from "next/cache";
 import ROUTES from "@/constants/routs";
+import { after } from "next/server";
+import { CreateIntaction } from "./intraction.action";
 
 export async function CreateAnswer(params: createAnswerParams): Promise<ActionResponse<IAnswersDoc>> {
   const validationResult = await action({
@@ -51,8 +53,18 @@ export async function CreateAnswer(params: createAnswerParams): Promise<ActionRe
 
     await session.commitTransaction();
 
+
+    after(async()=>{
+      await CreateIntaction({
+        action: "post",
+        actionId: newAnswer._id.toString(),
+        actionTarget: "answer",
+        authorId: userId as string
+      })
+    })
+
     revalidatePath(ROUTES.QUESTION(questionId));
-    console.log("AnswerCreate:", newAnswer);
+
     return { success: true, data: JSON.parse(JSON.stringify(newAnswer)) };
   } catch (error) {
     await session.abortTransaction();
