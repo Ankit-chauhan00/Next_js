@@ -25,6 +25,7 @@ import {
 import { after } from "next/server";
 import { CreateIntaction } from "./intraction.action";
 import { Intraction } from "@/database";
+import { cache } from "react";
 
 export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<Questions>> {
   const validationResult = await action({ params, schema: AskQuestionSchema, authorize: true });
@@ -202,7 +203,7 @@ export async function getQuestion(params: GetQuestionParams): Promise<ActionResp
   }
 }
 
-export async function getQuestions(
+export const getQuestions = cache( async function getQuestions(
   params: PaginatedSearchParams
 ): Promise<ActionResponse<{ questions: Questions[]; isNext: boolean }>> {
   const validationResult = await action({
@@ -269,7 +270,7 @@ export async function getQuestions(
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
-}
+})
 
 export async function incrementViews(params: IncrementViewsParams): Promise<ActionResponse<{ views: number }>> {
   const validationResult = await action({
