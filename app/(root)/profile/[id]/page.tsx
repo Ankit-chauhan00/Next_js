@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import UserAvatar from "@/components/UserAvatar";
 import ProfileLinks from "@/components/users/ProfileLinks";
-import { getUser, getUserAnswers, getUserQuestion, getUserTags } from "@/lib/action/user.action";
+import { getUser, getUserAnswers, getUserQuestion, GetUserStats, getUserTags } from "@/lib/action/user.action";
 import { RouteParams } from "@/types/global";
 import { notFound } from "next/navigation";
 import dayjs from "dayjs";
@@ -26,7 +26,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
 
   const loggedInUser = await auth();
 
-  const [userResult, questionResult, answerResult, tagResult] = await Promise.all([
+  const [userResult, questionResult, answerResult, tagResult, userStatsResult] = await Promise.all([
     getUser({ userId: id }),
 
     getUserQuestion({
@@ -44,6 +44,8 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
     getUserTags({
       userId: id,
     }),
+
+    GetUserStats({ userId: id }),
   ]);
 
   const { success, data, error } = userResult;
@@ -70,6 +72,8 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
   const { answers } = userAnswers!;
 
   const { tags } = userTag!;
+
+  const { data: userStatsData } = userStatsResult!;
 
   return (
     <>
@@ -108,13 +112,10 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
       </section>
 
       <Stats
-        totalQuestions={totalQuestions}
-        totalAnswers={totalAnswers}
-        badges={{
-          GOLD: 0,
-          SILVER: 0,
-          BRONZE: 0,
-        }}
+        totalQuestions={userStatsData?.totalQuestion || 0}
+        totalAnswers={userStatsData?.totalAnswer || 0}
+        badges={ userStatsData?.badges || {GOLD: 0, SILVER: 0, BRONZE: 0}}
+        reputationPoints={user.reputation || 0}
       />
 
       <section className="mt-10 flex gap-10">
@@ -137,7 +138,11 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               render={() => (
                 <div className="flex w-full flex-col gap-6">
                   {questions.map((question) => (
-                    <QuestionCard key={question._id} question={question} showActionBtn={loggedInUser?.user?.id === question.author._id} />
+                    <QuestionCard
+                      key={question._id}
+                      question={question}
+                      showActionBtn={loggedInUser?.user?.id === question.author._id}
+                    />
                   ))}
                 </div>
               )}

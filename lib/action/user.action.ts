@@ -1,6 +1,15 @@
 "use server";
 
-import { ActionResponse, Answer, ErrorResponse, PaginatedSearchParams, Questions, Tagg, Users } from "@/types/global";
+import {
+  ActionResponse,
+  Answer,
+  Badges,
+  ErrorResponse,
+  PaginatedSearchParams,
+  Questions,
+  Tagg,
+  Users,
+} from "@/types/global";
 import action from "../handlers/action";
 import {
   DeleteUserAnswerSchema,
@@ -26,6 +35,7 @@ import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { CreateIntaction } from "./intraction.action";
+import { assignBadges } from "../utils";
 
 export async function getUsers(
   params: PaginatedSearchParams
@@ -352,7 +362,7 @@ export async function deleteUserAnswer(params: DeleteUserAnswerPArams): Promise<
     // delete answer
     await Answers.findByIdAndDelete(answerId);
 
-      after(async () => {
+    after(async () => {
       await CreateIntaction({
         action: "delete",
         actionId: answerId,
@@ -364,6 +374,68 @@ export async function deleteUserAnswer(params: DeleteUserAnswerPArams): Promise<
     revalidatePath(`/profile/${user?.id}`);
 
     return { success: true };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function GetUserStats(
+  params: GetUserParams
+): Promise<ActionResponse<{ totalQuestion: number; totalAnswer: number; badges: Badges }>> {
+  const validationResult = await action({
+    params,
+    schema: getUserSchema,
+  });
+
+  if (validationResult instanceof Error) return handleError(validationResult) as ErrorResponse;
+
+  const { userId } = params;
+
+  try {
+    const [questionStats] = await Question.aggregate([
+      { $match: { author: new Types.ObjectId(userId) } },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          upvotes: { $sum: "$upvotes" },
+          views: { $sum: "$views" },
+        },
+      },
+    ]);
+
+    const [answerStats] = await Answers.aggregate([
+      { $match: { author: new Types.ObjectId(userId) } },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          upvotes: { $sum: "$upvotes" },
+          views: { $sum: "$views" },
+        },
+      },
+    ]);
+
+    const badges = assignBadges({
+      criteria: [
+        { type: "ANSWER_COUNT", count: answerStats.count },
+        { type: "QUESTION_COUNT", count: questionStats.count },
+        {
+          type: "QUESTION_UPVOTES",
+          count: questionStats.upvotes + answerStats.upvotes,
+        },
+        { type: "TOTAL_VIEWS", count: questionStats.views },
+      ],
+    });
+
+    return {
+      success: true,
+      data: {
+        totalQuestion: questionStats.count,
+        totalAnswer: answerStats.count,
+        badges,
+      },
+    };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

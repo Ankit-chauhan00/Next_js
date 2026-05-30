@@ -1,16 +1,6 @@
 
+import { InteractionActionEnums } from "@/constants";
 import { model, models, Schema, Types, Document } from "mongoose";
-
-export const InteractionActionEnums = [
-  "view",
-  "upvote",
-  "downvote",
-  "bookmark",
-  "post",
-  "edit",
-  "delete",
-  "search",
-] as const;
 
 export interface Intraction {
     user: Types.ObjectId;

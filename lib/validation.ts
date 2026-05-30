@@ -1,5 +1,5 @@
 // /lib/validations.ts
-import { InteractionActionEnums } from "@/database/intraction.model";
+import { InteractionActionEnums } from "@/constants";
 import { z } from "zod";
 
 export const SignInSchema = z.object({

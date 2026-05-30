@@ -10,7 +10,6 @@ interface Author {
   _id: string;
   name: string;
   image: string;
-
 }
 
 interface Questions {
@@ -21,53 +20,50 @@ interface Questions {
   author: Author;
   createdAt: Date;
   upvotes: number;
-  downvotes: number
+  downvotes: number;
   answers: number;
   views: number;
   createdAt: Date;
 }
 
-
-
-interface SignInWithOauthParam{
-  provider: 'github' | 'google',
-  providerAccountId: string,
+interface SignInWithOauthParam {
+  provider: "github" | "google";
+  providerAccountId: string;
   user: {
-    email: string,
-    name: string,
-    image: string,
-    username: string
-  }
+    email: string;
+    name: string;
+    image: string;
+    username: string;
+  };
 }
 
 type ActionResponse<T = null> = {
-  success : boolean;
+  success: boolean;
   data?: T;
   error?: {
     message: string;
-    details?: Record<string,string[]>;
+    details?: Record<string, string[]>;
   };
   status?: number;
-}
+};
 
-type SuccessResponse<T = null> = ActionResponse<T> & { success: true};
-type ErrorResponse = ActionResponse<undefined> & {success: false};
+type SuccessResponse<T = null> = ActionResponse<T> & { success: true };
+type ErrorResponse = ActionResponse<undefined> & { success: false };
 
 type APIErrorResponse = NextResponse<ErrorResponse>;
-type APIResponse<T = null> =SuccessResponse<T> | ErrorResponse
+type APIResponse<T = null> = SuccessResponse<T> | ErrorResponse;
 
 interface RouteParams {
   params: Promise<Record<string, string>>;
-  searchParams: Promise<Record<string,string>>;
+  searchParams: Promise<Record<string, string>>;
 }
-
 
 interface PaginatedSearchParams {
   page?: number;
   pageSize?: number;
   query?: string;
   filter?: string;
-  sort?: string;  
+  sort?: string;
 }
 
 interface Answer {
@@ -77,7 +73,7 @@ interface Answer {
   createdAt: Date;
   upvotes: number;
   downvotes: number;
-  question : string;
+  question: string;
 }
 
 interface Users {
@@ -90,17 +86,16 @@ interface Users {
   location?: string;
   portfolio?: string;
   reputation?: number;
-  createdAt: Date
+  createdAt: Date;
 }
 interface Collections {
   _id: string;
-  author: string | Author
+  author: string | Author;
   question: Questions;
 }
 
-interface BadgeCounts {
+interface Badges {
   GOLD: number;
   SILVER: number;
   BRONZE: number;
 }
-
