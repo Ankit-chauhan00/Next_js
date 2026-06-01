@@ -113,3 +113,8 @@ interface RecommendationParams {
   skip: number;
   limit : number;
 }
+
+interface globalSearchParams {
+  query: string;
+  type: string | null;
+}

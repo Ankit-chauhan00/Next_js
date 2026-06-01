@@ -5,6 +5,7 @@ import Theme from './Themes';
 import MobileNavigation from './MobileNavigation';
 import { auth } from '@/auth'
 import UserAvatar from '@/components/UserAvatar';
+import GlobalSearch from '@/components/search/GlobalSearch';
 
 
 //Image is a next component
@@ -29,7 +30,7 @@ const Navbar = async () => {
       </Link>
 
 
-      <p>Global Search</p>
+      <GlobalSearch/>
 
       <div className="flex-between gap-3">
         <Theme/>

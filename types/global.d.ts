@@ -99,3 +99,10 @@ interface Badges {
   SILVER: number;
   BRONZE: number;
 }
+
+interface GlobalSearchItme {
+  id: string;
+  type: "question" | "answer" | "user" | "tag";
+  title: string;
+}
+

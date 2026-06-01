@@ -16,7 +16,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google,
     Credentials({
       async authorize(credentials) {
-        
         const validatedFields = SignInSchema.safeParse(credentials);
 
         if (!validatedFields.success) {
@@ -72,28 +71,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
 
-    async jwt({ token, user, account }) {
-      // first time login (credential or oAuth)
-
-      if (user) {
-        token.id = user.id; // stores directly
-      }
-
-      if (account && account.type !== "credentials") {
+    async jwt({ token, account }) {
+      if (account) {
         const { data: existingAccount, success } = (await api.accounts.getByProvider(
-          account.providerAccountId
+          account.type === "credentials" ? token.email! : account.providerAccountId
         )) as ActionResponse<IAccountDoc>;
 
-        if (success && existingAccount?.userId) {
-          token.id = existingAccount.userId.toString();
-        }
-      }
+        if (!success || !existingAccount) return token;
 
-      // ✅ VERY IMPORTANT: keep existing id
-      if (!token.id && token.sub) {
-        token.id = token.sub;
-      }
+        const userId = existingAccount.userId;
 
+        if (userId) token.sub = userId.toString();
+      }
       return token;
     },
 
@@ -102,22 +91,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (!account || !user) return false;
 
       const userInfo = {
-        name: user.name || user.email?.split('@')[0] || 'User',
-        email: user.email || profile?.email || undefined,
-        image: user.image || profile?.avatar_url || undefined,
-        username: account.provider === "github" 
-          ? (profile?.login as string) 
-          : (user.name?.toLowerCase().replace(/\s+/g, '') || user.email?.split('@')[0] || 'user'),
+        name: user.name!,
+        email: user.email!,
+        image: user.image!,
+        username:
+          account.provider === "github"
+            ? (profile?.login as string)
+            : user.name?.toLowerCase().replace(/\s+/g, "") || user.email?.split("@")[0] || "user",
       };
 
-      console.log("NextAuth user object:", user);
-      console.log("NextAuth profile object:", profile);
-      console.log("Constructed userInfo:", userInfo);
-
-      if (!userInfo.email) {
-        console.error("No email found in OAuth user data");
-        return false;
-      }
 
       const { success } = (await api.auth.oAuthSignIn({
         user: userInfo,

@@ -1,5 +1,5 @@
 import React, {  ReactNode } from 'react'
-import  Navbar  from '@/components/navigation/navbar/page';
+import  Navbar  from '@/components/navigation/navbar';
 import LeftNavBar from '@/components/navigation/LeftNavBar';
 import RightNavBar from '@/components/navigation/RightNavBar';
 
