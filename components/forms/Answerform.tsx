@@ -67,7 +67,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
     }
 
     setIsAISubmitting(true);
-    
+
     const userAnswer = editorRef.current?.getMarkdown();
 
     try {
@@ -77,7 +77,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
         return toast.error(error?.message);
       }
 
-      const formattedAnswer = data.replace(/<br>/g, " ").toString().trim();
+      const formattedAnswer = typeof data === "string" ? data.replace(/<br>/g, " ").trim() : "";
 
       if (editorRef.current) {
         editorRef.current.setMarkdown(formattedAnswer);

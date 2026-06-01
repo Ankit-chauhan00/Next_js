@@ -47,7 +47,7 @@ const AuthForm = <T extends FieldValues>({
 
 
   const form = useForm<z.infer<typeof schema>>({
-    resolver: standardSchemaResolver(schema),
+    resolver: standardSchemaResolver(schema as any),
     defaultValues: defaultValues as DefaultValues<T>,
   });
 

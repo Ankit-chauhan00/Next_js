@@ -91,7 +91,7 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
 
         if (result.success) {
           toast.success("Question updated Successfully");
-          if (result.data) router.push(ROUTES.QUESTION(result.data._id));
+          if (result.data) router.push(ROUTES.QUESTION(result.data._id.toString()));
         } else {
           toast.error(result.error?.message || "Something went wrong", {
           description: "Please try again later",

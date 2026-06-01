@@ -12,8 +12,8 @@ import Vote from "../votes/Vote";
 import EditDeleteAction from "../users/EditDeleteAction";
 
 interface Props extends Answer {
-  containerClasses: string;
-  showReadMore: boolean;
+  containerClasses?: string;
+  showReadMore?: boolean;
   showActionBtn?: boolean;
 }
 
@@ -27,7 +27,7 @@ const AnswerCard = ({
   question,
   containerClasses,
   showReadMore = false,
-  showActionBtn,
+  showActionBtn = false,
 }: Props) => {
   const hasVotedPromise = hasVoted({ targetId: _id, targetType: "answer" });
   return (
