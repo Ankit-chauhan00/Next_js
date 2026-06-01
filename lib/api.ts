@@ -3,7 +3,6 @@ import { IAccount } from "@/database/account.model";
 import { IUser } from "@/database/user.model";
 
 import { fetchHandler } from "./handlers/fetch";
-import { ActionResponse, APIResponse } from "@/types/global";
 import { SignInWithOAuthParams } from "@/types/action";
 import ROUTES from "@/constants/routs";
 

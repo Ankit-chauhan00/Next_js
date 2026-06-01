@@ -1,14 +1,14 @@
 import handleError from "@/lib/handlers/error";
-import { ValidationError } from "@/lib/http-error";
 import dbConnect from "@/lib/mongoose";
 import { signInWithOAuthSchema } from "@/lib/validation";
 import { APIErrorResponse, ErrorResponse } from "@/types/global";
 import mongoose from "mongoose";
-import z from "zod";
+import z, { flattenError } from "zod";
 import slugify from "slugify";
 import User from "@/database/user.model";
 import Account from "@/database/account.model";
 import { NextResponse } from "next/server";
+import { ValidationError } from "@/lib/http-error";
 
 export async function POST(request: Request) {
   const { provider, providerAccountId, user } = await request.json();
@@ -26,8 +26,8 @@ export async function POST(request: Request) {
     });
 
     if (!validatedData.success) {
-    const flatternError = z.treeifyError(validatedData.data!)
-    return handleError(flatternError) as ErrorResponse;
+   const formattedError = z.treeifyError(validatedData.error);
+    throw new ValidationError(formattedError) ;
     }
 
     const { name, username, email, image } = user;
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     await session.abortTransaction();
-    return handleError(error, "api") as APIErrorResponse;
+    return handleError(error) as APIErrorResponse;
   } finally {
     session.endSession();
   }
