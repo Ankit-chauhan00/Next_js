@@ -3,12 +3,11 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import { ActionResponse } from "./types/global";
 import { api } from "./lib/api";
-import Account, { IAccountDoc } from "./database/account.model";
+import  { IAccountDoc } from "./database/account.model";
 import { SignInSchema } from "./lib/validation";
-import User from "./database/user.model";
+import  { IUserDoc } from "./database/user.model";
 import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
-import dbConnect from "./lib/mongoose";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -18,46 +17,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         const validatedFields = SignInSchema.safeParse(credentials);
 
-        if (!validatedFields.success) {
-          console.log("❌ validation failed");
-          return null;
+        if (validatedFields.success) {
+          const { email, password } = validatedFields.data;
+
+          const { data: existingAccount } = (await api.accounts.getByProvider(email)) as ActionResponse<IAccountDoc>;
+
+          if (!existingAccount) return null;
+
+          const { data: existingUser } = (await api.users.getById(
+            existingAccount.userId.toString()
+          )) as ActionResponse<IUserDoc>;
+
+          if (!existingUser) return null;
+
+          const isValidPassword = await bcrypt.compare(password, existingAccount.password!);
+
+          if (isValidPassword) {
+            return {
+              id: existingUser.id,
+              name: existingUser.name,
+              email: existingUser.email,
+              image: existingUser.image,
+            };
+          }
         }
-
-        const email = validatedFields.data.email.toLowerCase().trim();
-        const password = validatedFields.data.password;
-
-        await dbConnect();
-
-        const account = await Account.findOne({
-          provider: "credentials",
-          providerAccountId: email,
-        });
-
-        console.log("ACCOUNT:", account);
-
-        if (!account) return null;
-
-        const user = await User.findById(account.userId);
-        console.log("USER:", user);
-
-        if (!user) return null;
-
-        const isValidPassword = await bcrypt.compare(password, account.password!);
-        console.log("PASSWORD MATCH:", isValidPassword);
-
-        if (!isValidPassword) return null;
-
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          image: user.image,
-
-          // 👇 attach account info
-          accountId: account._id.toString(),
-          provider: account.provider,
-        };
-
         return null;
       },
     }),
@@ -66,7 +49,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
+        session.user.id = token.sub as string;
       }
       return session;
     },
@@ -99,7 +82,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             ? (profile?.login as string)
             : user.name?.toLowerCase().replace(/\s+/g, "") || user.email?.split("@")[0] || "user",
       };
-
 
       const { success } = (await api.auth.oAuthSignIn({
         user: userInfo,
