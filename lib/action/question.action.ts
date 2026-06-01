@@ -37,11 +37,12 @@ export async function createQuestion(params: CreateQuestionParams): Promise<Acti
   const { title, content, tags } = validationResult.params!;
   const userId = validationResult?.session?.user?.id;
 
+  await dbConnect();
+
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    await dbConnect();
     const [question] = await Question.create([{ title, content, author: userId }], { session });
 
     if (!question) throw new Error("Failed to create question");
@@ -103,6 +104,8 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
 
   const { title, content, tags, questionId } = validationResult.params!;
   const userId = validationResult?.session?.user?.id;
+
+  await dbConnect();
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -193,6 +196,7 @@ export async function getQuestion(params: GetQuestionParams): Promise<ActionResp
   const { questionId } = validationResult.params!;
 
   try {
+    await dbConnect();
     const question = await Question.findById(questionId).populate("tags").populate("author", "_id name image");
 
     if (!question) throw new Error("Question not found");
@@ -251,6 +255,7 @@ export const getQuestions = cache( async function getQuestions(
   }
 
   try {
+    await dbConnect();
     const totalQuestions = await Question.countDocuments(filterQuery);
 
     const questions = await Question.find(filterQuery)
@@ -283,6 +288,7 @@ export async function incrementViews(params: IncrementViewsParams): Promise<Acti
   const { questionId } = validationResult.params!;
 
   try {
+    await dbConnect()
     const question = await Question.findById(questionId);
 
     if (!question) throw new Error("Question not Found");
@@ -312,6 +318,8 @@ export async function getHotQuestions(): Promise<ActionResponse<Questions[]>> {
 }
 
 export async function getRecommendedQuestion({ userId, query, skip, limit }: RecommendationParams) {
+
+  await dbConnect();
   // get user latest interaction
   const interaction = await Intraction.find({
     user: new Types.ObjectId(userId),
