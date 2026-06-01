@@ -1,3 +1,10 @@
+declare module "*.css";
+declare module "*.scss";
+declare module "*.sass";
+declare module "*.module.css";
+declare module "*.module.scss";
+declare module "*.module.sass";
+
 import { NextResponse } from "next/server";
 
 interface Tagg {
@@ -105,4 +112,3 @@ interface GlobalSearchItme {
   type: "question" | "answer" | "user" | "tag";
   title: string;
 }
-

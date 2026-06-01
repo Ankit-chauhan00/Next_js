@@ -53,15 +53,14 @@ export async function CreateAnswer(params: createAnswerParams): Promise<ActionRe
 
     await session.commitTransaction();
 
-
-    after(async()=>{
+    after(async () => {
       await CreateIntaction({
         action: "post",
         actionId: newAnswer._id.toString(),
         actionTarget: "answer",
-        authorId: userId as string
-      })
-    })
+        authorId: userId as string,
+      });
+    });
 
     revalidatePath(ROUTES.QUESTION(questionId));
 

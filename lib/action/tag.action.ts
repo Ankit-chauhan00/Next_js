@@ -1,3 +1,4 @@
+"use server";
 import { ActionResponse, ErrorResponse, PaginatedSearchParams, Questions, Tagg } from "@/types/global";
 import action from "../handlers/action";
 import { GetTagQuestionSchema, PaginatedSearchParamsSchema } from "../validation";

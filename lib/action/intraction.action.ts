@@ -1,3 +1,4 @@
+"use server"
 import Intraction, { IIntarctionDoc } from "@/database/intraction.model";
 import { CreateInteractionParams, UpdateReputationParams } from "@/types/action";
 import { ActionResponse, ErrorResponse } from "@/types/global";
