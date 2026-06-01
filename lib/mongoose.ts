@@ -1,7 +1,7 @@
 
 import mongoose, {Mongoose} from 'mongoose'
 import logger from './logger';
-import "@/database";
+
 
 const MONGODB_URI =  process.env.MONGODB_URI as string;
 
@@ -33,10 +33,12 @@ const dbConnect = async () :Promise<Mongoose> =>{
 
   if(!cached.promise){
     cached.promise = mongoose.connect(MONGODB_URI,{
-      dbName: 'devflow'
+      dbName: 'devflow',
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 30000,
     })
     .then((result)=>{
-      logger.error("connected to mongoDB");
+      logger.error("Connected to mongoDB");
       return result;
     }).catch((error)=>{
       logger.error("Error while connecting to mongoDb", error);
