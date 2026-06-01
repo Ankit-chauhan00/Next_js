@@ -37,13 +37,20 @@ export async function createQuestion(params: CreateQuestionParams): Promise<Acti
   const { title, content, tags } = validationResult.params!;
   const userId = validationResult?.session?.user?.id;
 
+  // Validate that userId is a valid MongoDB ObjectID (24 hex chars)
+  if (!userId || (typeof userId === "string" && userId.length !== 24)) {
+    return handleError(new Error(`Invalid user ID format: expected MongoDB ObjectID, got ${userId}`)) as ErrorResponse;
+  }
+
   await dbConnect();
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const [question] = await Question.create([{ title, content, author: userId }], { session });
+    // Convert userId to ObjectID explicitly
+    const authorId = new mongoose.Types.ObjectId(userId as string);
+    const [question] = await Question.create([{ title, content, author: authorId }], { session });
 
     if (!question) throw new Error("Failed to create question");
 
@@ -207,7 +214,7 @@ export async function getQuestion(params: GetQuestionParams): Promise<ActionResp
   }
 }
 
-export const getQuestions = cache( async function getQuestions(
+export const getQuestions = cache(async function getQuestions(
   params: PaginatedSearchParams
 ): Promise<ActionResponse<{ questions: Questions[]; isNext: boolean }>> {
   const validationResult = await action({
@@ -275,7 +282,7 @@ export const getQuestions = cache( async function getQuestions(
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
-})
+});
 
 export async function incrementViews(params: IncrementViewsParams): Promise<ActionResponse<{ views: number }>> {
   const validationResult = await action({
@@ -288,7 +295,7 @@ export async function incrementViews(params: IncrementViewsParams): Promise<Acti
   const { questionId } = validationResult.params!;
 
   try {
-    await dbConnect()
+    await dbConnect();
     const question = await Question.findById(questionId);
 
     if (!question) throw new Error("Question not Found");
@@ -318,7 +325,6 @@ export async function getHotQuestions(): Promise<ActionResponse<Questions[]>> {
 }
 
 export async function getRecommendedQuestion({ userId, query, skip, limit }: RecommendationParams) {
-
   await dbConnect();
   // get user latest interaction
   const interaction = await Intraction.find({
@@ -370,7 +376,7 @@ export async function getRecommendedQuestion({ userId, query, skip, limit }: Rec
     .limit(limit)
     .lean();
 
-    return {
+  return {
     questions: JSON.parse(JSON.stringify(questions)),
     isNext: total > skip + questions.length,
   };

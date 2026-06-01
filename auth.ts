@@ -3,9 +3,9 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import { ActionResponse } from "./types/global";
 import { api } from "./lib/api";
-import  { IAccountDoc } from "./database/account.model";
+import { IAccountDoc } from "./database/account.model";
 import { SignInSchema } from "./lib/validation";
-import  { IUserDoc } from "./database/user.model";
+import { IUserDoc } from "./database/user.model";
 import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
 
@@ -20,7 +20,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;
 
-          const { data: existingAccount } = (await api.accounts.getByProvider(email)) as ActionResponse<IAccountDoc>;
+          const { data: existingAccount } = (await api.accounts.getByProvider(
+            email
+          )) as ActionResponse<IAccountDoc>;
 
           if (!existingAccount) return null;
 
@@ -30,7 +32,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!existingUser) return null;
 
-          const isValidPassword = await bcrypt.compare(password, existingAccount.password!);
+          const isValidPassword = await bcrypt.compare(
+            password,
+            existingAccount.password!
+          );
 
           if (isValidPassword) {
             return {
@@ -45,20 +50,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-
   callbacks: {
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub as string;
-      }
+      session.user.id = token.sub as string;
       return session;
     },
-
     async jwt({ token, account }) {
       if (account) {
-        const { data: existingAccount, success } = (await api.accounts.getByProvider(
-          account.type === "credentials" ? token.email! : account.providerAccountId
-        )) as ActionResponse<IAccountDoc>;
+        const { data: existingAccount, success } =
+          (await api.accounts.getByProvider(
+            account.type === "credentials"
+              ? token.email!
+              : account.providerAccountId
+          )) as ActionResponse<IAccountDoc>;
 
         if (!success || !existingAccount) return token;
 
@@ -66,9 +70,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (userId) token.sub = userId.toString();
       }
+
       return token;
     },
-
     async signIn({ user, profile, account }) {
       if (account?.type === "credentials") return true;
       if (!account || !user) return false;
@@ -80,13 +84,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         username:
           account.provider === "github"
             ? (profile?.login as string)
-            : user.name?.toLowerCase().replace(/\s+/g, "") || user.email?.split("@")[0] || "user",
+            : (user.name?.toLowerCase() as string),
       };
 
       const { success } = (await api.auth.oAuthSignIn({
         user: userInfo,
         provider: account.provider as "github" | "google",
-        providerAccountId: account.providerAccountId as string,
+        providerAccountId: account.providerAccountId,
       })) as ActionResponse;
 
       if (!success) return false;

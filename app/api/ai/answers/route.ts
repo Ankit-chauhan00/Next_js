@@ -8,6 +8,9 @@ import { AIanswerSchema } from "@/lib/validation";
 import { ValidationError } from "@/lib/http-error";
 import z from "zod";
 
+export const maxDuration = 5;
+export const runtime = "edge";
+
 export async function POST(req: Request) {
   const body = await req.json();
 

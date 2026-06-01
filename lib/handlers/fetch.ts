@@ -55,6 +55,6 @@ export async function fetchHandler<T>(
       logger.error(`Error fetching ${url}: ${error.message}`);
     }
 
-    return handleError(error) as ActionResponse<T>;
+    return (await handleError(error)) as ActionResponse<T>;
   }
 }

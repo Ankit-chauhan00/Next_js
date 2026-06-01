@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+
+// we can igonore eslit and typescript during build
 const nextConfig: NextConfig = {
   serverExternalPackages: ["pino", "pino-pretty"],
   images:{
