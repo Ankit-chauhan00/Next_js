@@ -15,9 +15,7 @@ import { SignInSchema, SignUpSchema } from "../validation";
 import { NotFoundError } from "../http-error";
 import { AuthCredentials } from "@/types/action";
 
-export async function signUpWithCredentials(
-  params: AuthCredentials
-): Promise<ActionResponse> {
+export async function signUpWithCredentials(params: AuthCredentials): Promise<ActionResponse> {
   const validationResult = await action({ params, schema: SignUpSchema });
 
   if (validationResult instanceof Error) {
@@ -30,8 +28,6 @@ export async function signUpWithCredentials(
   session.startTransaction();
 
   try {
-    await dbConnect();
-
     const existingUser = await User.findOne({ email }).session(session);
 
     if (existingUser) {
@@ -69,8 +65,9 @@ export async function signUpWithCredentials(
 
     return { success: true };
   } catch (error) {
-    await session.abortTransaction();
-
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     return handleError(error) as ErrorResponse;
   } finally {
     await session.endSession();

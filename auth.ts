@@ -3,15 +3,15 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import { ActionResponse } from "./types/global";
 import { api } from "./lib/api";
-import { IAccountDoc } from "./database/account.model";
+import Account, { IAccountDoc } from "./database/account.model";
 import { SignInSchema } from "./lib/validation";
-import { IUserDoc } from "./database/user.model";
+import User, { IUserDoc } from "./database/user.model";
 import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
-import slugify from 'slugify'
- 
+import slugify from "slugify";
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  trustHost:true,
+  trustHost: true,
   providers: [
     GitHub,
     Google,
@@ -22,13 +22,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;
 
-          const { data: existingAccount } = (await api.accounts.getByProvider(email)) as ActionResponse<IAccountDoc>;
+          const existingAccount = await Account.findOne({
+            provider: "credentials",
+            providerAccountId: email,
+          });
 
           if (!existingAccount) return null;
 
-          const { data: existingUser } = (await api.users.getById(
-            existingAccount.userId.toString()
-          )) as ActionResponse<IUserDoc>;
+          const existingUser = await User.findById(existingAccount.userId.toString());
 
           if (!existingUser) return null;
 
@@ -75,7 +76,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         name: user.name!,
         email: user.email!,
         image: user.image!,
-        username: account.provider === "github" ? (profile?.login as string) : slugify(user.name!, {lower: true})
+        username: account.provider === "github" ? (profile?.login as string) : slugify(user.name!, { lower: true }),
       };
 
       const { success } = (await api.auth.oAuthSignIn({
