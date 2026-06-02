@@ -7,6 +7,7 @@ import { QueryFilter } from "mongoose";
 import { Question, Tag } from "@/database";
 import { getTagQuestionParams } from "@/types/action";
 import dbConnect from "../mongoose";
+import { cache } from "react";
 
 export const getTags = async (
   params: PaginatedSearchParams
@@ -127,7 +128,7 @@ export const getTagQuestions = async (
   }
 };
 
-export const getTopTags = async (): Promise<ActionResponse<Tagg[]>> =>{
+export  const getTopTags = cache( async (): Promise<ActionResponse<Tagg[]>> =>{
   try {
     await dbConnect();
 
@@ -143,4 +144,4 @@ export const getTopTags = async (): Promise<ActionResponse<Tagg[]>> =>{
   } catch (error) {
     return handleError(error) as ErrorResponse
   }
-}
+})

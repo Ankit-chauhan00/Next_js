@@ -309,7 +309,7 @@ export async function incrementViews(params: IncrementViewsParams): Promise<Acti
   }
 }
 
-export async function getHotQuestions(): Promise<ActionResponse<Questions[]>> {
+export const getHotQuestions = cache(async function getHotQuestions(): Promise<ActionResponse<Questions[]>> {
   try {
     await dbConnect();
 
@@ -322,7 +322,7 @@ export async function getHotQuestions(): Promise<ActionResponse<Questions[]>> {
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
-}
+})
 
 export async function getRecommendedQuestion({ userId, query, skip, limit }: RecommendationParams) {
   await dbConnect();
