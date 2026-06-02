@@ -25,7 +25,7 @@ import {
 import { after } from "next/server";
 import { CreateIntaction } from "./intraction.action";
 import { Intraction } from "@/database";
-import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<Questions>> {
   const validationResult = await action({ params, schema: AskQuestionSchema, authorize: true });
@@ -214,9 +214,10 @@ export async function getQuestion(params: GetQuestionParams): Promise<ActionResp
   }
 }
 
-export const getQuestions = cache(async function getQuestions(
+export const getQuestions = unstable_cache(async function getQuestions(
   params: PaginatedSearchParams
 ): Promise<ActionResponse<{ questions: Questions[]; isNext: boolean }>> {
+
   const validationResult = await action({
     params,
     schema: PaginatedSearchParamsSchema,
@@ -262,6 +263,8 @@ export const getQuestions = cache(async function getQuestions(
   }
 
   try {
+
+    console.log("Fetching Questions ")
     await dbConnect();
     const totalQuestions = await Question.countDocuments(filterQuery);
 
@@ -309,8 +312,10 @@ export async function incrementViews(params: IncrementViewsParams): Promise<Acti
   }
 }
 
-export const getHotQuestions = cache(async function getHotQuestions(): Promise<ActionResponse<Questions[]>> {
+export const getHotQuestions = unstable_cache(async function getHotQuestions(): Promise<ActionResponse<Questions[]>> {
   try {
+
+    console.log("Geting hot Question");
     await dbConnect();
 
     const question = await Question.find().sort({ views: -1, upvotes: -1 }).limit(5);

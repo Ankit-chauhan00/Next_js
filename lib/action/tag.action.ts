@@ -8,6 +8,7 @@ import { Question, Tag } from "@/database";
 import { getTagQuestionParams } from "@/types/action";
 import dbConnect from "../mongoose";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 export const getTags = async (
   params: PaginatedSearchParams
@@ -128,8 +129,9 @@ export const getTagQuestions = async (
   }
 };
 
-export  const getTopTags = cache( async (): Promise<ActionResponse<Tagg[]>> =>{
+export  const getTopTags = unstable_cache( async (): Promise<ActionResponse<Tagg[]>> =>{
   try {
+    console.log("Fetching Top Tags");
     await dbConnect();
 
     const tags = await Tag.find()
