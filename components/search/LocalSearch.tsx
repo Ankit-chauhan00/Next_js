@@ -41,7 +41,7 @@ const LocalSearch = ({ route, imgSrc, placeholder, otherClasses, iconPosition = 
           router.replace(newUrl, { scroll: false });
         }
       }
-    }, 300);
+    }, 100);
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, pathname, route, router, searchParams]);
