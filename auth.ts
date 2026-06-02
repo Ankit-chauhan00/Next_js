@@ -8,8 +8,10 @@ import { SignInSchema } from "./lib/validation";
 import { IUserDoc } from "./database/user.model";
 import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
-
+import slugify from 'slugify'
+ 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost:true,
   providers: [
     GitHub,
     Google,
@@ -20,9 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;
 
-          const { data: existingAccount } = (await api.accounts.getByProvider(
-            email
-          )) as ActionResponse<IAccountDoc>;
+          const { data: existingAccount } = (await api.accounts.getByProvider(email)) as ActionResponse<IAccountDoc>;
 
           if (!existingAccount) return null;
 
@@ -32,10 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!existingUser) return null;
 
-          const isValidPassword = await bcrypt.compare(
-            password,
-            existingAccount.password!
-          );
+          const isValidPassword = await bcrypt.compare(password, existingAccount.password!);
 
           if (isValidPassword) {
             return {
@@ -57,12 +54,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async jwt({ token, account }) {
       if (account) {
-        const { data: existingAccount, success } =
-          (await api.accounts.getByProvider(
-            account.type === "credentials"
-              ? token.email!
-              : account.providerAccountId
-          )) as ActionResponse<IAccountDoc>;
+        const { data: existingAccount, success } = (await api.accounts.getByProvider(
+          account.type === "credentials" ? token.email! : account.providerAccountId
+        )) as ActionResponse<IAccountDoc>;
 
         if (!success || !existingAccount) return token;
 
@@ -81,10 +75,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         name: user.name!,
         email: user.email!,
         image: user.image!,
-        username:
-          account.provider === "github"
-            ? (profile?.login as string)
-            : (user.name?.toLowerCase() as string),
+        username: account.provider === "github" ? (profile?.login as string) : slugify(user.name!, {lower: true})
       };
 
       const { success } = (await api.auth.oAuthSignIn({
@@ -93,7 +84,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         providerAccountId: account.providerAccountId,
       })) as ActionResponse;
 
-      if (!success) return false;
+      console.log("OAuth SignIn Response:", success);
+
+      if (!success) {
+        console.error("OAuth SignIn Failed");
+        return false;
+      }
 
       return true;
     },

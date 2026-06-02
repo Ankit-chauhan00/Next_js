@@ -54,7 +54,7 @@ const Home = async ({ searchParams }: SearchParams) => {
     otherClasses = "w-full mt-10"
     containerClasses = "max-md:flex"
     />
-      <HomeFilter />
+      <HomeFilter/>
 
       <DataRenderer
         success={success}
